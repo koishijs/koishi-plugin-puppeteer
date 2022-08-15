@@ -10,25 +10,25 @@
 
 可以通过 `ctx.puppeteer` 访问。
 
-### puppet.launch()
+### puppeteer.launch()
 
 - 返回值: `Promise<void>`
 
 启动并连接浏览器。
 
-### puppet.close()
+### puppeteer.close()
 
 - 返回值: `Promise<void>`
 
 关闭浏览器并取消连接。
 
-### puppet.page()
+### puppeteer.page()
 
 - 返回值: `Promise<Page>`
 
 创建一个新页面。
 
-### puppet.render(content, callback?)
+### puppeteer.render(content, callback?)
 
 - **content:** `string` 要渲染的 HTML
 - **callback:** `(page, next) => Promise<string>` 回调函数
