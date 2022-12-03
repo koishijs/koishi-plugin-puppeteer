@@ -1,0 +1,60 @@
+{
+  "name": "koishi-plugin-puppeteer",
+  "description": "Browser API service for Koishi",
+  "version": "3.0.2",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "files": [
+    "lib",
+    "dist"
+  ],
+  "author": "Shigma <shigma10826@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/koishijs/koishi-plugin-puppeteer.git"
+  },
+  "bugs": {
+    "url": "https://github.com/koishijs/koishi-plugin-puppeteer/issues"
+  },
+  "homepage": "https://github.com/koishijs/koishi-plugin-puppeteer",
+  "scripts": {
+    "build": "atsc -b"
+  },
+  "koishi": {
+    "description": {
+      "en": "Browser API service which can be used to take screenshots",
+      "zh": "浏览器 API 服务，可用于网页截图等"
+    },
+    "service": {
+      "implements": [
+        "puppeteer"
+      ]
+    }
+  },
+  "keywords": [
+    "bot",
+    "chatbot",
+    "koishi",
+    "plugin",
+    "screenshot",
+    "browser",
+    "headless",
+    "service",
+    "render",
+    "puppeteer"
+  ],
+  "peerDependencies": {
+    "koishi": "^4.8.4"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.45",
+    "atsc": "^1.2.1",
+    "koishi": "^4.10.4",
+    "typescript": "^4.9.3"
+  },
+  "dependencies": {
+    "chrome-finder": "^1.0.7",
+    "puppeteer-core": "^13.7.0"
+  }
+}

@@ -72,7 +72,7 @@ class Puppeteer extends Service {
     const output = await callback(page, async (handle) => {
       const clip = handle ? await handle.boundingBox() : null
       const buffer = await page.screenshot({ clip })
-      return segment.image(buffer)
+      return segment.image(buffer).toString()
     })
 
     page.close()
