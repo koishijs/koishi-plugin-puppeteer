@@ -1,0 +1,36 @@
+{
+  "name": "puppeteer-finder",
+  "description": "Find a executable Chrome / Edge / Firefox in your system",
+  "version": "1.0.0",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "files": [
+    "lib",
+    "dist"
+  ],
+  "author": "Shigma <shigma10826@gmail.com>",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/koishijs/koishi-plugin-puppeteer.git",
+    "directory": "packages/finder"
+  },
+  "bugs": {
+    "url": "https://github.com/koishijs/koishi-plugin-puppeteer/issues"
+  },
+  "homepage": "https://github.com/koishijs/koishi-plugin-puppeteer",
+  "keywords": [
+    "chrome",
+    "chromium",
+    "finder",
+    "find",
+    "puppeteer",
+    "pptr",
+    "firefox",
+    "edge",
+    "msedge"
+  ],
+  "devDependencies": {
+    "@types/node": "^17.0.45"
+  }
+}
