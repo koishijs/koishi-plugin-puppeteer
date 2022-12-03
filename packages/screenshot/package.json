@@ -1,0 +1,62 @@
+{
+  "name": "koishi-plugin-screenshot",
+  "description": "Take screenshots of any website",
+  "version": "1.0.1",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "files": [
+    "lib",
+    "dist"
+  ],
+  "author": "Shigma <shigma10826@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/koishijs/koishi-plugin-screenshot.git"
+  },
+  "bugs": {
+    "url": "https://github.com/koishijs/koishi-plugin-screenshot/issues"
+  },
+  "homepage": "https://github.com/koishijs/koishi-plugin-screenshot",
+  "scripts": {
+    "build": "atsc -b"
+  },
+  "koishi": {
+    "description": {
+      "en": "Take screenshots of any website",
+      "zh": "网页截图"
+    },
+    "service": {
+      "required": [
+        "puppeteer"
+      ]
+    }
+  },
+  "keywords": [
+    "bot",
+    "chatbot",
+    "koishi",
+    "plugin",
+    "screenshot",
+    "browser",
+    "headless",
+    "service",
+    "render",
+    "puppeteer"
+  ],
+  "peerDependencies": {
+    "koishi": "^4.8.4",
+    "koishi-plugin-puppeteer": "^3.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.45",
+    "@types/pngjs": "^6.0.1",
+    "atsc": "^1.2.1",
+    "koishi": "^4.10.4",
+    "koishi-plugin-puppeteer": "^3.0.2",
+    "typescript": "^4.9.3"
+  },
+  "dependencies": {
+    "pngjs": "^6.0.0"
+  }
+}
