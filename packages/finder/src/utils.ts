@@ -2,7 +2,12 @@ import fs from 'fs'
 
 export const newLineRegex = /\r?\n/
 
-export function sort(installations: string[], priorities) {
+interface Priority {
+  regex: RegExp
+  weight: number
+}
+
+export function sort(installations: string[], priorities: Priority[]) {
   const defaultPriority = 10
   // assign priorities
   return installations
@@ -15,7 +20,7 @@ export function sort(installations: string[], priorities) {
       return { path: inst, weight: defaultPriority }
     })
     // sort based on priorities
-    .sort((a, b) => (b.weight - a.weight))
+    .sort((a, b) => b.weight - a.weight)
     // remove priority flag
     .map(pair => pair.path)
 }
@@ -40,7 +45,7 @@ export function isExecutable(file: string) {
 
   try {
     var stat = fs.statSync(file)
-    return stat && typeof stat.isFile === "function" && stat.isFile()
+    return stat && typeof stat.isFile === 'function' && stat.isFile()
   } catch (e) {
     return false
   }

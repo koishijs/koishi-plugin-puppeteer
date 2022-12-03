@@ -1,24 +1,31 @@
 import { execSync } from 'child_process'
-import path from 'path'
+import { join } from 'path'
 import { canAccess, newLineRegex, sort } from './utils'
 
+const suffixes = [
+  '/Contents/MacOS/Google Chrome Canary',
+  '/Contents/MacOS/Google Chrome',
+  '/Contents/MacOS/Chromium',
+]
+
+const LSREGISTER =
+  '/System/Library/Frameworks/CoreServices.framework' +
+  '/Versions/A/Frameworks/LaunchServices.framework' +
+  '/Versions/A/Support/lsregister'
+
 export default function darwin() {
-  const suffixes = ['/Contents/MacOS/Google Chrome Canary', '/Contents/MacOS/Google Chrome', '/Contents/MacOS/Chromium']
-
-  const LSREGISTER = '/System/Library/Frameworks/CoreServices.framework' +
-    '/Versions/A/Frameworks/LaunchServices.framework' +
-    '/Versions/A/Support/lsregister'
-
   const installations = []
 
-  execSync(`
-    ${LSREGISTER} -dump | grep -E -i -o '/.+(google chrome( canary)?|chromium)\\.app(\\s|$)' | grep -E -v 'Caches|TimeMachine|Temporary|/Volumes|\\.Trash'
-  `)
+  execSync([
+    `${LSREGISTER} -dump`,
+    `grep -E -i -o '/.+(google chrome( canary)?|chromium)\\.app(\\s|$)'`,
+    `grep -E -v 'Caches|TimeMachine|Temporary|/Volumes|\\.Trash'`,
+  ].join(' | '))
     .toString()
     .split(newLineRegex)
     .forEach((inst) => {
       suffixes.forEach(suffix => {
-        const execPath = path.join(inst.trim(), suffix)
+        const execPath = join(inst.trim(), suffix)
         if (canAccess(execPath)) {
           installations.push(execPath)
         }

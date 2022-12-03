@@ -12,19 +12,17 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/koishijs/koishi-plugin-puppeteer.git"
+    "url": "git+https://github.com/koishijs/koishi-plugin-puppeteer.git",
+    "directory": "packages/puppeteer"
   },
   "bugs": {
     "url": "https://github.com/koishijs/koishi-plugin-puppeteer/issues"
   },
-  "homepage": "https://github.com/koishijs/koishi-plugin-puppeteer",
-  "scripts": {
-    "build": "atsc -b"
-  },
+  "homepage": "https://puppeteer.koishi.chat",
   "koishi": {
     "description": {
-      "en": "Browser API service which can be used to take screenshots",
-      "zh": "浏览器 API 服务，可用于网页截图等"
+      "en": "Browser service",
+      "zh": "浏览器服务"
     },
     "service": {
       "implements": [
@@ -54,7 +52,7 @@
     "typescript": "^4.9.3"
   },
   "dependencies": {
-    "chrome-finder": "^1.0.7",
-    "puppeteer-core": "^13.7.0"
+    "puppeteer-core": "^13.7.0",
+    "puppeteer-finder": "^1.0.0"
   }
 }

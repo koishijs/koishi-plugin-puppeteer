@@ -1,4 +1,5 @@
 import puppeteer, { Browser, ElementHandle, Page } from 'puppeteer-core'
+import find from 'puppeteer-finder'
 import { Context, Logger, Schema, segment, Service } from 'koishi'
 import { SVG, SVGOptions } from './svg'
 
@@ -46,8 +47,7 @@ class Puppeteer extends Service {
   constructor(ctx: Context, public config: Puppeteer.Config) {
     super(ctx, 'puppeteer')
     if (!config.executablePath) {
-      const findChrome = require('chrome-finder')
-      logger.debug('chrome executable found at %c', config.executablePath = findChrome())
+      logger.debug('chrome executable found at %c', config.executablePath = find())
     }
   }
 

@@ -1,9 +1,10 @@
 import { execSync, execFileSync } from 'child_process'
-import path from 'path'
-import fs from 'fs'
+import { join } from 'path'
+import { homedir } from 'os'
+import { existsSync } from 'fs'
 import { canAccess, sort, isExecutable, newLineRegex } from './utils'
 
-function findChromeExecutablesForLinuxDesktop(folder) {
+function findChromeExecutablesForLinuxDesktop(folder: string) {
   const argumentsRegex = /(^[^ ]+).*/; // Take everything up to the first space
   const chromeExecRegex = '^Exec=\/.*\/(google|chrome|chromium)-.*'
 
@@ -26,7 +27,6 @@ function findChromeExecutablesForLinuxDesktop(folder) {
   return installations
 }
 
-
 /**
  * Look for linux executables in 2 ways
  * 1. Look into the directories where .desktop are saved on gnome based distro's
@@ -37,7 +37,7 @@ export default function linux() {
 
   // 2. Look into the directories where .desktop are saved on gnome based distro's
   const desktopInstallationFolders = [
-    path.join(require('os').homedir(), '.local/share/applications/'),
+    join(homedir(), '.local/share/applications/'),
     '/usr/share/applications/',
   ]
   desktopInstallationFolders.forEach(folder => {
@@ -65,7 +65,7 @@ export default function linux() {
     ].map((possiblePath) => {
       try {
         const chromePathToTest = possiblePath + '/' + executable
-        if (fs.existsSync(chromePathToTest) && canAccess(chromePathToTest) && isExecutable(chromePathToTest)) {
+        if (existsSync(chromePathToTest) && canAccess(chromePathToTest) && isExecutable(chromePathToTest)) {
           installations.push(chromePathToTest)
           return chromePathToTest
         }
