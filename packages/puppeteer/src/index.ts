@@ -28,6 +28,16 @@ class Puppeteer extends Service {
   async start() {
     this.browser = await puppeteer.launch(this.config)
     logger.debug('browser launched')
+
+    this.ctx.component('html', async (attrs, children, session) => {
+      const page = await this.page()
+      await page.setContent(`<html>
+        <body style="display: inline-block">${children.join('')}</body>
+      </html>`)
+      const body = await page.$('body')
+      const clip = await body.boundingBox()
+      return segment.image(await page.screenshot({ clip }))
+    })
   }
 
   async stop() {
