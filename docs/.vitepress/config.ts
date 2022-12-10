@@ -16,10 +16,12 @@ export default defineConfig({
       text: '指南',
       items: [
         { text: '介绍', link: './' },
+        { text: 'API', link: './api' },
       ],
     }, {
       text: '插件',
       items: [
+        { text: '浏览器 (Puppeteer)', link: './plugins/puppeteer' },
         { text: '网页截图 (Screenshot)', link: './plugins/screenshot' },
       ],
     }, {
