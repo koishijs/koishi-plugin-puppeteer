@@ -29,8 +29,8 @@ declare module 'puppeteer-core/lib/types' {
   }
 
   interface ElementHandle {
-    screenshot(options?: Base64ScreenshotOptions): Promise<string>;
-    screenshot(options?: BinaryScreenshotOptions): Promise<Buffer>;
+    screenshot(options?: Base64ScreenshotOptions): Promise<string>
+    screenshot(options?: BinaryScreenshotOptions): Promise<Buffer>
   }
 }
 

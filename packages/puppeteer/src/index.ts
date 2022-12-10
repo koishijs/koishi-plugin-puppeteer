@@ -71,18 +71,18 @@ namespace Puppeteer {
 
   export const Config = Schema.intersect([
     Schema.object({
-      executablePath: Schema.string().description('Chromium 可执行文件的路径。缺省时将自动从系统中寻找。'),
+      executablePath: Schema.string().description('可执行文件的路径。缺省时将自动从系统中寻找。'),
+      headless: Schema.boolean().description('是否开启[无头模式](https://developer.chrome.com/blog/headless-chrome/)。').default(true),
+      args: Schema.array(String).description('额外的浏览器参数。Chromium 参数可以参考[这个页面](https://peter.sh/experiments/chromium-command-line-switches/)。'),
+    }).description('启动设置'),
+    Schema.object({
       defaultViewport: Schema.object({
         width: Schema.natural().description('默认的视图宽度。').default(800),
         height: Schema.natural().description('默认的视图高度。').default(600),
         deviceScaleFactor: Schema.number().min(0).description('默认的设备缩放比率。').default(2),
       }),
-    }).description('浏览器设置'),
-    Schema.object({
-      headless: Schema.boolean().description('是否开启[无头模式](https://developer.chrome.com/blog/headless-chrome/)。').default(true),
       ignoreHTTPSErrors: Schema.boolean().description('在导航时忽略 HTTPS 错误。').default(false),
-      args: Schema.array(String).description('额外的浏览器参数。Chromium 参数可以参考[这个页面](https://peter.sh/experiments/chromium-command-line-switches/)。'),
-    }).description('高级设置'),
+    }).description('浏览器设置'),
   ]) as Schema<Config>
 }
 

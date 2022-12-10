@@ -18,7 +18,7 @@
   "bugs": {
     "url": "https://github.com/koishijs/koishi-plugin-puppeteer/issues"
   },
-  "homepage": "https://puppeteer.koishi.chat",
+  "homepage": "https://puppeteer.koishi.chat/plugins/puppeteer.html",
   "koishi": {
     "description": {
       "en": "Browser service",
