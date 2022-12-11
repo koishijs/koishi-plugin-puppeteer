@@ -1,5 +1,5 @@
 {
-  "name": "koishi-plugin-color-image",
+  "name": "koishi-plugin-color",
   "description": "Generate color image",
   "version": "1.0.1",
   "main": "lib/index.js",
@@ -13,12 +13,12 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/koishijs/koishi-plugin-puppeteer.git",
-    "directory": "packages/color-image"
+    "directory": "packages/color"
   },
   "bugs": {
     "url": "https://github.com/koishijs/koishi-plugin-puppeteer/issues"
   },
-  "homepage": "https://puppeteer.koishi.chat/plugins/color-image.html",
+  "homepage": "https://puppeteer.koishi.chat/plugins/color.html",
   "koishi": {
     "description": {
       "en": "Generate color image",

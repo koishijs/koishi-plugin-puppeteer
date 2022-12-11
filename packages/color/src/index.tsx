@@ -1,6 +1,6 @@
 import { Context, Schema } from 'koishi'
 
-export const name = 'color-image'
+export const name = 'color'
 export const using = ['puppeteer'] as const
 
 export interface Config {
@@ -14,7 +14,7 @@ export const Config: Schema<Config> = Schema.object({
 })
 
 export function apply(ctx: Context, config: Config) {
-  ctx.command('color-image <color>', '生成色图')
+  ctx.command('color <color:text>', '生成色图')
     .action((_, color) => {
       if (!color) return '请输入颜色。'
       return <html>
