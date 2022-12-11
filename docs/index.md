@@ -10,10 +10,10 @@ koishi-plugin-puppeteer 提供了通用的浏览器服务，可用于网页截�
 
 以下是本仓库提供的插件：
 
-- [生成色图 (Color Image)](./plugins/color-image.md)
+- [生成色图 (Color)](./plugins/color.md)
 - [浏览器 (Puppeteer)](./plugins/puppeteer.md)
 - [网页截图 (Screenshot)](./plugins/screenshot.md)
 
 以下是其他用到此服务的插件：
 
-- [chess](https://chess.koishi.chat)
+- [棋类游戏 (Chess)](https://chess.koishi.chat)

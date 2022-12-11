@@ -1,13 +1,29 @@
 # koishi-plugin-color
 
-生成色图 (其实只是生成纯色图片)。
+生成色图 (其实只是生成有颜色的图片)。
+
+:::: tabs
+::: tab color:code 纯色
+:::
+::: tab color:gradient 渐变
+:::
+::::
 
 <chat-panel>
-<chat-message nickname="Alice">color #66ccff</chat-message>
+<chat-message nickname="Alice">color {{ colors[active] }}</chat-message>
 <chat-message nickname="Koishi">
-<div style="width: 100px; height: 100px; background-color: #66ccff;"></div>
+<div :style="`width: 100px; height: 100px; background: ${colors[active]};`"></div>
 </chat-message>
 </chat-panel>
+
+<script lang="ts" setup>
+import { useActiveTab } from '@koishijs/vitepress/client'
+const colors = {
+  'color:code': '#66ccff',
+  'color:gradient': 'linear-gradient(-30deg, #fc6076 0%, #ff9a44 100%)',
+}
+const active = useActiveTab(Object.keys(colors))
+</script>
 
 ## 指令：color
 
