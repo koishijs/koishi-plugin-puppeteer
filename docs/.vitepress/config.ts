@@ -32,5 +32,9 @@ export default defineConfig({
         { text: '支持作者', link: 'https://afdian.net/a/shigma' },
       ],
     }],
+    
+    editLink: {
+      pattern: 'https://github.com/koishijs/koishi-plugin-puppeteer/edit/main/docs/:path',
+    },
   },
 })
