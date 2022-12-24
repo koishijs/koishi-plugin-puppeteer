@@ -1,6 +1,6 @@
 import puppeteer, { Browser, ElementHandle, Page } from 'puppeteer-core'
 import find from 'puppeteer-finder'
-import { Context, Logger, Schema, segment, Service } from 'koishi'
+import { Context, hyphenate, Logger, Schema, segment, Service } from 'koishi'
 import { SVG, SVGOptions } from './svg'
 
 export * from './svg'
@@ -17,22 +17,37 @@ const logger = new Logger('puppeteer')
 
 class Puppeteer extends Service {
   browser: Browser
+  executable: string
 
   constructor(ctx: Context, public config: Puppeteer.Config) {
     super(ctx, 'puppeteer')
-    if (!config.executablePath) {
-      logger.debug('chrome executable found at %c', config.executablePath = find())
-    }
   }
 
   async start() {
-    this.browser = await puppeteer.launch(this.config)
+    let { executablePath } = this.config
+    if (!executablePath) {
+      logger.info('chrome executable found at %c', executablePath = find())
+    }
+    this.browser = await puppeteer.launch({
+      ...this.config,
+      executablePath,
+    })
     logger.debug('browser launched')
+
+    const transform = (element: segment) => {
+      const attrs = { ...element.attrs }
+      if (typeof attrs.style === 'object') {
+        attrs.style = Object.entries(attrs.style).map(([key, value]) => {
+          return `${hyphenate(key)}: ${value}`
+        }).join('; ')
+      }
+      return segment(element.type, attrs, element.children.map(transform))
+    }
 
     this.ctx.component('html', async (attrs, children, session) => {
       const page = await this.page()
       await page.setContent(`<html>
-        <body style="display: inline-block">${children.join('')}</body>
+        <body style="display: inline-block">${children.map(transform).join('')}</body>
       </html>`)
       const body = await page.$('body')
       const clip = await body.boundingBox()

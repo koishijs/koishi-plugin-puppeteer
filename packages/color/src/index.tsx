@@ -18,7 +18,11 @@ export function apply(ctx: Context, config: Config) {
     .action((_, color) => {
       if (!color) return '请输入颜色。'
       return <html>
-        <div style={`width: ${config.width}px; height: ${config.height}px; background: ${color}`}></div>
+        <div style={{
+          width: config.width + 'px',
+          height: config.height + 'px',
+          background: color,
+        }}></div>
       </html>
     })
 }
