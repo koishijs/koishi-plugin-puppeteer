@@ -44,15 +44,15 @@
   ],
   "peerDependencies": {
     "koishi": "^4.8.4",
-    "koishi-plugin-puppeteer": "^3.2.0"
+    "koishi-plugin-puppeteer": "^3.3.0"
   },
   "devDependencies": {
     "@types/node": "^17.0.45",
     "@types/pngjs": "^6.0.1",
-    "atsc": "^1.2.1",
-    "koishi": "^4.10.5",
-    "koishi-plugin-puppeteer": "^3.2.0",
-    "typescript": "^4.9.3"
+    "atsc": "^1.2.2",
+    "koishi": "^4.10.10",
+    "koishi-plugin-puppeteer": "^3.3.0",
+    "typescript": "^4.9.4"
   },
   "dependencies": {
     "pngjs": "^6.0.0"
