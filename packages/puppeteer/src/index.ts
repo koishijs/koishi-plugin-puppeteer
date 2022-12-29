@@ -34,8 +34,8 @@ class Puppeteer extends Service {
     })
     logger.debug('browser launched')
 
-    const transformStyle = (source: {}) => {
-      return Object.entries(source).map(([key, value]) => {
+    const transformStyle = (source: {}, base = {}) => {
+      return Object.entries({ ...base, ...source }).map(([key, value]) => {
         return `${hyphenate(key)}: ${Array.isArray(value) ? value.join(', ') : value}`
       }).join('; ')
     }
@@ -50,7 +50,9 @@ class Puppeteer extends Service {
 
     this.ctx.component('html', async (attrs, children, session) => {
       const page = await this.page()
-      const bodyStyle = transformStyle({ display: 'inline-block', ...attrs.style })
+      const bodyStyle = typeof attrs.style === 'object'
+        ? transformStyle({ display: 'inline-block' }, attrs.style)
+        : ['display: inline-block', attrs.style].filter(Boolean).join('; ')
       await page.setContent(`<html>
         <body style="${bodyStyle}">${children.map(transform).join('')}</body>
       </html>`)

@@ -1,0 +1,54 @@
+{
+  "name": "koishi-plugin-phlogo",
+  "description": "Generate pornhub-like logo",
+  "version": "1.0.0",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "files": [
+    "lib",
+    "dist"
+  ],
+  "author": "Shigma <shigma10826@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/koishijs/koishi-plugin-puppeteer.git",
+    "directory": "packages/phlogo"
+  },
+  "bugs": {
+    "url": "https://github.com/koishijs/koishi-plugin-puppeteer/issues"
+  },
+  "homepage": "https://puppeteer.koishi.chat/plugins/phlogo.html",
+  "koishi": {
+    "description": {
+      "en": "Generate pornhub-like logo",
+      "zh": "生成 Pornhub 风格的图标"
+    },
+    "service": {
+      "required": [
+        "puppeteer"
+      ]
+    }
+  },
+  "keywords": [
+    "bot",
+    "chatbot",
+    "koishi",
+    "plugin",
+    "logo",
+    "image",
+    "meme",
+    "pornhub"
+  ],
+  "peerDependencies": {
+    "koishi": "^4.8.4",
+    "koishi-plugin-puppeteer": "^3.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.45",
+    "atsc": "^1.2.2",
+    "koishi": "^4.10.10",
+    "koishi-plugin-puppeteer": "^3.3.1",
+    "typescript": "^4.9.4"
+  }
+}
