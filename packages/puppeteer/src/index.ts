@@ -34,20 +34,25 @@ class Puppeteer extends Service {
     })
     logger.debug('browser launched')
 
+    const transformStyle = (source: {}) => {
+      return Object.entries(source).map(([key, value]) => {
+        return `${hyphenate(key)}: ${Array.isArray(value) ? value.join(', ') : value}`
+      }).join('; ')
+    }
+
     const transform = (element: segment) => {
       const attrs = { ...element.attrs }
       if (typeof attrs.style === 'object') {
-        attrs.style = Object.entries(attrs.style).map(([key, value]) => {
-          return `${hyphenate(key)}: ${value}`
-        }).join('; ')
+        attrs.style = transformStyle(attrs.style)
       }
       return segment(element.type, attrs, element.children.map(transform))
     }
 
     this.ctx.component('html', async (attrs, children, session) => {
       const page = await this.page()
+      const bodyStyle = transformStyle({ display: 'inline-block', ...attrs.style })
       await page.setContent(`<html>
-        <body style="display: inline-block">${children.map(transform).join('')}</body>
+        <body style="${bodyStyle}">${children.map(transform).join('')}</body>
       </html>`)
       const body = await page.$('body')
       const clip = await body.boundingBox()
