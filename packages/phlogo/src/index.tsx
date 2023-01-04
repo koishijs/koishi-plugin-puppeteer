@@ -8,7 +8,7 @@ export interface Config {}
 export const Config: Schema<Config> = Schema.object({})
 
 export function apply(ctx: Context, config: Config) {
-  ctx.command('phlogo <left:string> <right:string>', '生成色图')
+  ctx.command('phlogo <left:string> <right:string>', 'Pornhub 风格图标生成')
     .action((_, left, right) => {
       if (!left || !right) return '请输入以空格间隔的两段文本。'
       return <html style={{

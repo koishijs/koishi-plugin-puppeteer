@@ -142,6 +142,6 @@ export class SVG extends Tag {
       },
     })
     page.close()
-    return segment.image(buffer)
+    return segment.image(buffer, 'image/png')
   }
 }

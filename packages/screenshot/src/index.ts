@@ -9,31 +9,6 @@ declare module 'koishi' {
   }
 }
 
-declare module 'puppeteer-core/lib/types' {
-  interface Base64ScreenshotOptions extends ScreenshotOptions {
-    encoding: 'base64'
-  }
-
-  interface BinaryScreenshotOptions extends ScreenshotOptions {
-    encoding?: 'binary'
-  }
-
-  interface Shooter {
-    screenshot(options?: Base64ScreenshotOptions): Promise<string>
-    screenshot(options?: BinaryScreenshotOptions): Promise<Buffer>
-  }
-
-  interface Page {
-    screenshot(options?: Base64ScreenshotOptions): Promise<string>
-    screenshot(options?: BinaryScreenshotOptions): Promise<Buffer>
-  }
-
-  interface ElementHandle {
-    screenshot(options?: Base64ScreenshotOptions): Promise<string>
-    screenshot(options?: BinaryScreenshotOptions): Promise<Buffer>
-  }
-}
-
 const logger = new Logger('puppeteer')
 
 export const name = 'screenshot'
@@ -148,7 +123,7 @@ export function apply(ctx: Context, config: Config) {
             buffer = PNG.sync.write(png)
           }).catch(noop)
         }
-        return segment.image(buffer)
+        return segment.image(buffer, 'image/png')
       }, (error) => {
         logger.debug(error)
         return '截图失败。'

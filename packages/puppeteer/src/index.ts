@@ -11,6 +11,31 @@ declare module 'koishi' {
   }
 }
 
+declare module 'puppeteer-core/lib/types' {
+  interface Base64ScreenshotOptions extends ScreenshotOptions {
+    encoding: 'base64'
+  }
+
+  interface BinaryScreenshotOptions extends ScreenshotOptions {
+    encoding?: 'binary'
+  }
+
+  interface Shooter {
+    screenshot(options?: Base64ScreenshotOptions): Promise<string>
+    screenshot(options?: BinaryScreenshotOptions): Promise<Buffer>
+  }
+
+  interface Page {
+    screenshot(options?: Base64ScreenshotOptions): Promise<string>
+    screenshot(options?: BinaryScreenshotOptions): Promise<Buffer>
+  }
+
+  interface ElementHandle {
+    screenshot(options?: Base64ScreenshotOptions): Promise<string>
+    screenshot(options?: BinaryScreenshotOptions): Promise<Buffer>
+  }
+}
+
 type RenderCallback = (page: Page, next: (handle?: ElementHandle) => Promise<string>) => Promise<string>
 
 const logger = new Logger('puppeteer')
@@ -58,7 +83,7 @@ class Puppeteer extends Service {
       </html>`)
       const body = await page.$('body')
       const clip = await body.boundingBox()
-      return segment.image(await page.screenshot({ clip }))
+      return segment.image(await page.screenshot({ clip }), 'image/png')
     })
   }
 
@@ -78,7 +103,7 @@ class Puppeteer extends Service {
     const output = await callback(page, async (handle) => {
       const clip = handle ? await handle.boundingBox() : null
       const buffer = await page.screenshot({ clip })
-      return segment.image(buffer).toString()
+      return segment.image(buffer, 'image/png').toString()
     })
 
     page.close()
