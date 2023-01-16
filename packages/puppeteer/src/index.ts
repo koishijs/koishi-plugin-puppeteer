@@ -83,9 +83,12 @@ class Puppeteer extends Service {
       </html>`)
       const body = await page.$('body')
       const clip = await body.boundingBox()
-      const screenshot = await page.screenshot({ clip }) as Buffer
-      await page.close()
-      return segment.image(screenshot, 'image/png')
+      try {
+        const screenshot = await page.screenshot({ clip }) as Buffer
+        return segment.image(screenshot, 'image/png')
+      } finally {
+        await page.close()
+      }
     })
   }
 
