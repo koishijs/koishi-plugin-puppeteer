@@ -74,16 +74,22 @@ class Puppeteer extends Service {
     }
 
     this.ctx.component('html', async (attrs, children, session) => {
-      const page = await this.page()
-      const bodyStyle = typeof attrs.style === 'object'
-        ? transformStyle({ display: 'inline-block' }, attrs.style)
-        : ['display: inline-block', attrs.style].filter(Boolean).join('; ')
-      await page.setContent(`<html>
-        <body style="${bodyStyle}">${children.map(transform).join('')}</body>
-      </html>`)
-      const body = await page.$('body')
-      const clip = await body.boundingBox()
-      return segment.image(await page.screenshot({ clip }), 'image/png')
+      let page: Page
+      try {
+        page = await this.page()
+        const bodyStyle = typeof attrs.style === 'object'
+          ? transformStyle({ display: 'inline-block' }, attrs.style)
+          : ['display: inline-block', attrs.style].filter(Boolean).join('; ')
+        await page.setContent(`<html>
+          <body style="${bodyStyle}">${children.map(transform).join('')}</body>
+        </html>`)
+        const body = await page.$('body')
+        const clip = await body.boundingBox()
+        const screenshot = await page.screenshot({ clip }) as Buffer
+        return segment.image(screenshot, 'image/png')
+      } finally {
+        await page?.close()
+      }
     })
   }
 
