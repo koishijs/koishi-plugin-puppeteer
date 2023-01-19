@@ -47,7 +47,7 @@ export function apply(ctx: Context, config: Config) {
   const { defaultViewport } = ctx.puppeteer.config
   const { protocols, maxSize, loadTimeout, idleTimeout } = config
 
-  ctx.command('shot <url> [selector:rawtext]', '网页截图', { authority: 2 })
+  ctx.command('shot <url> [selector:rawtext]', '网页截图')
     .alias('screenshot')
     .option('full', '-f  对整个可滚动区域截图')
     .option('viewport', '-v <viewport:string>  指定视口')

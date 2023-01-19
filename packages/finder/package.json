@@ -1,7 +1,7 @@
 {
   "name": "puppeteer-finder",
   "description": "Find a executable Chrome / Edge / Firefox in your system",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [
@@ -31,6 +31,7 @@
     "msedge"
   ],
   "devDependencies": {
-    "@types/node": "^17.0.45"
+    "@types/node": "^18.11.18",
+    "typescript": "^4.9.4"
   }
 }
