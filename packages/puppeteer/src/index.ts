@@ -118,6 +118,8 @@ class Puppeteer extends Service {
 }
 
 namespace Puppeteer {
+  export const filter = false
+
   type LaunchOptions = Parameters<typeof puppeteer.launch>[0]
 
   export interface Config extends LaunchOptions {}

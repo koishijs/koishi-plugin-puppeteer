@@ -1,7 +1,7 @@
 {
   "name": "puppeteer-finder",
   "description": "Find a executable Chrome / Edge / Firefox in your system",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [
