@@ -3,6 +3,8 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
+      "puppeteer-finder": ["packages/finder/src"],
+      "koishi-plugin-puppeteer": ["packages/core/src"],
       "koishi-plugin-*": ["packages/*/src"],
     },
   },
