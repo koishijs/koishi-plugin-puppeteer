@@ -82,7 +82,9 @@ export default function linux() {
 
     try {
       const chromePath =
-        execFileSync('which', [executable]).toString().split(newLineRegex)[0]
+        execFileSync('which', [executable], {
+          stdio: [null, 'pipe', null]
+        }).toString().split(newLineRegex)[0]
       if (canAccess(chromePath)) {
         installations.push(chromePath)
       }
