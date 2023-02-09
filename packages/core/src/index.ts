@@ -2,6 +2,7 @@ import puppeteer, { Browser, ElementHandle, Page } from 'puppeteer-core'
 import find from 'puppeteer-finder'
 import { Context, hyphenate, Logger, Schema, segment, Service } from 'koishi'
 import { SVG, SVGOptions } from './svg'
+import { resolve } from 'path'
 
 export * from './svg'
 
@@ -77,6 +78,7 @@ class Puppeteer extends Service {
       let page: Page
       try {
         page = await this.page()
+        await page.goto('file:///' + resolve(__dirname, '../index.html'))
         const bodyStyle = typeof attrs.style === 'object'
           ? transformStyle({ display: 'inline-block' }, attrs.style)
           : ['display: inline-block', attrs.style].filter(Boolean).join('; ')
