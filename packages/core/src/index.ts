@@ -66,15 +66,21 @@ class Puppeteer extends Service {
       }).join('; ')
     }
 
-    const transform = (element: segment) => {
-      const attrs = { ...element.attrs }
-      if (typeof attrs.style === 'object') {
-        attrs.style = transformStyle(attrs.style)
-      }
-      return segment(element.type, attrs, element.children.map(transform))
-    }
-
     this.ctx.component('html', async (attrs, children, session) => {
+      const head: segment[] = []
+
+      const transform = (element: segment) => {
+        if (element.type === 'head') {
+          head.push(...element.children)
+          return
+        }
+        const attrs = { ...element.attrs }
+        if (typeof attrs.style === 'object') {
+          attrs.style = transformStyle(attrs.style)
+        }
+        return segment(element.type, attrs, element.children.map(transform).filter(Boolean))
+      }
+
       let page: Page
       try {
         page = await this.page()
@@ -82,8 +88,10 @@ class Puppeteer extends Service {
         const bodyStyle = typeof attrs.style === 'object'
           ? transformStyle({ display: 'inline-block' }, attrs.style)
           : ['display: inline-block', attrs.style].filter(Boolean).join('; ')
+        const content = children.map(transform).filter(Boolean).join('')
         await page.setContent(`<html>
-          <body style="${bodyStyle}">${children.map(transform).join('')}</body>
+          <head>${head.join('')}</head>
+          <body style="${bodyStyle}">${content}</body>
         </html>`)
         const body = await page.$('body')
         const clip = await body.boundingBox()

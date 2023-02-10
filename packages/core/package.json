@@ -1,7 +1,7 @@
 {
   "name": "koishi-plugin-puppeteer",
   "description": "Browser API service for Koishi",
-  "version": "3.4.4",
+  "version": "3.4.5",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [
