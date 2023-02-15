@@ -84,15 +84,19 @@ class Puppeteer extends Service {
       let page: Page
       try {
         page = await this.page()
-        await page.goto('file:///' + resolve(__dirname, '../index.html'))
-        const bodyStyle = typeof attrs.style === 'object'
-          ? transformStyle({ display: 'inline-block' }, attrs.style)
-          : ['display: inline-block', attrs.style].filter(Boolean).join('; ')
-        const content = children.map(transform).filter(Boolean).join('')
-        await page.setContent(`<html>
-          <head>${head.join('')}</head>
-          <body style="${bodyStyle}">${content}</body>
-        </html>`)
+        if (attrs.src) {
+          await page.goto(attrs.src)
+        } else {
+          await page.goto('file:///' + resolve(__dirname, '../index.html'))
+          const bodyStyle = typeof attrs.style === 'object'
+            ? transformStyle({ display: 'inline-block' }, attrs.style)
+            : ['display: inline-block', attrs.style].filter(Boolean).join('; ')
+          const content = children.map(transform).filter(Boolean).join('')
+          await page.setContent(`<html>
+            <head>${head.join('')}</head>
+            <body style="${bodyStyle}">${content}</body>
+          </html>`)
+        }
         const body = await page.$('body')
         const clip = await body.boundingBox()
         const screenshot = await page.screenshot({ clip }) as Buffer
