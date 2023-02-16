@@ -84,10 +84,14 @@ class Puppeteer extends Service {
       let page: Page
       try {
         page = await this.page()
+        const options: Parameters<typeof page.goto>[1] = {
+          waitUntil: attrs.waitUntil,
+          timeout: attrs.timeout,
+        }
         if (attrs.src) {
-          await page.goto(attrs.src)
+          await page.goto(attrs.src, options)
         } else {
-          await page.goto('file:///' + resolve(__dirname, '../index.html'))
+          await page.goto('file:///' + resolve(__dirname, '../index.html'), options)
           const bodyStyle = typeof attrs.style === 'object'
             ? transformStyle({ display: 'inline-block' }, attrs.style)
             : ['display: inline-block', attrs.style].filter(Boolean).join('; ')
@@ -97,7 +101,7 @@ class Puppeteer extends Service {
             <body style="${bodyStyle}">${content}</body>
           </html>`)
         }
-        const body = await page.$('body')
+        const body = await page.$(attrs.selector || 'body')
         const clip = await body.boundingBox()
         const screenshot = await page.screenshot({ clip }) as Buffer
         return segment.image(screenshot, 'image/png')
