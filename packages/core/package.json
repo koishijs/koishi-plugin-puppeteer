@@ -1,7 +1,7 @@
 {
   "name": "koishi-plugin-puppeteer",
   "description": "Browser API service for Koishi",
-  "version": "3.4.8",
+  "version": "3.4.10",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [
@@ -14,12 +14,12 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/koishijs/koishi-plugin-puppeteer.git",
-    "directory": "packages/puppeteer"
+    "directory": "packages/core"
   },
   "bugs": {
     "url": "https://github.com/koishijs/koishi-plugin-puppeteer/issues"
   },
-  "homepage": "https://puppeteer.koishi.chat/plugins/puppeteer.html",
+  "homepage": "https://puppeteer.koishi.chat",
   "koishi": {
     "description": {
       "en": "Browser service",

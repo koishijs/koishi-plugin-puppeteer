@@ -86,7 +86,7 @@ class Puppeteer extends Service {
         page = await this.page()
         const options: Parameters<typeof page.goto>[1] = {
           waitUntil: attrs.waitUntil,
-          timeout: attrs.timeout,
+          timeout: attrs.timeout ? +attrs.timeout : undefined,
         }
         if (attrs.src) {
           await page.goto(attrs.src, options)
@@ -96,7 +96,8 @@ class Puppeteer extends Service {
             ? transformStyle({ display: 'inline-block' }, attrs.style)
             : ['display: inline-block', attrs.style].filter(Boolean).join('; ')
           const content = children.map(transform).filter(Boolean).join('')
-          await page.setContent(`<html>
+          const lang = attrs.lang ? ` lang="${attrs.lang}"` : ''
+          await page.setContent(`<html${lang}>
             <head>${head.join('')}</head>
             <body style="${bodyStyle}">${content}</body>
           </html>`)
