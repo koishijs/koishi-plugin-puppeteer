@@ -1,5 +1,5 @@
 import { Shooter } from 'puppeteer-core'
-import { Context, Logger, noop, Schema, segment, Time } from 'koishi'
+import { Context, h, Logger, noop, Schema, Time } from 'koishi'
 import {} from 'koishi-plugin-puppeteer'
 import { PNG } from 'pngjs'
 
@@ -123,7 +123,7 @@ export function apply(ctx: Context, config: Config) {
             buffer = PNG.sync.write(png)
           }).catch(noop)
         }
-        return segment.image(buffer, 'image/png')
+        return h.image(buffer, 'image/png')
       }, (error) => {
         logger.debug(error)
         return '截图失败。'
