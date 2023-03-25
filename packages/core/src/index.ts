@@ -1,10 +1,11 @@
 import puppeteer, { Browser, ElementHandle, Page } from 'puppeteer-core'
 import find from 'puppeteer-finder'
-import { Context, hyphenate, Logger, Schema, segment, Service } from 'koishi'
+import { Context, h, hyphenate, Logger, Schema, Service } from 'koishi'
 import { SVG, SVGOptions } from './svg'
 import { resolve } from 'path'
 
 export * from './svg'
+export * from 'puppeteer-core'
 
 declare module 'koishi' {
   interface Context {
@@ -67,9 +68,9 @@ class Puppeteer extends Service {
     }
 
     this.ctx.component('html', async (attrs, children, session) => {
-      const head: segment[] = []
+      const head: h[] = []
 
-      const transform = (element: segment) => {
+      const transform = (element: h) => {
         if (element.type === 'head') {
           head.push(...element.children)
           return
@@ -78,7 +79,7 @@ class Puppeteer extends Service {
         if (typeof attrs.style === 'object') {
           attrs.style = transformStyle(attrs.style)
         }
-        return segment(element.type, attrs, element.children.map(transform).filter(Boolean))
+        return h(element.type, attrs, element.children.map(transform).filter(Boolean))
       }
 
       let page: Page
@@ -104,7 +105,7 @@ class Puppeteer extends Service {
         const body = await page.$(attrs.selector || 'body')
         const clip = await body.boundingBox()
         const screenshot = await page.screenshot({ clip }) as Buffer
-        return segment.image(screenshot, 'image/png')
+        return h.image(screenshot, 'image/png')
       } finally {
         await page?.close()
       }
@@ -127,7 +128,7 @@ class Puppeteer extends Service {
     const output = await callback(page, async (handle) => {
       const clip = handle ? await handle.boundingBox() : null
       const buffer = await page.screenshot({ clip })
-      return segment.image(buffer, 'image/png').toString()
+      return h.image(buffer, 'image/png').toString()
     })
 
     page.close()
