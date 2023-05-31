@@ -92,7 +92,7 @@ class Puppeteer extends Service {
           const bodyStyle = typeof attrs.style === 'object'
             ? transformStyle({ display: 'inline-block' }, attrs.style)
             : ['display: inline-block', attrs.style].filter(Boolean).join('; ')
-          const content = children.map(transform).filter(Boolean).join('')
+          const content = h.unescape(children.map(transform).filter(Boolean).join(''))
           const lang = attrs.lang ? ` lang="${attrs.lang}"` : ''
           await page.setContent(`<html${lang}>
             <head>${head.join('')}</head>
