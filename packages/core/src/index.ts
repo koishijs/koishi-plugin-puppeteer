@@ -95,7 +95,7 @@ class Puppeteer extends Service {
           const content = h.unescape(children.map(transform).filter(Boolean).join(''))
           const lang = attrs.lang ? ` lang="${attrs.lang}"` : ''
           await page.setContent(`<html${lang}>
-            <head>${head.join('')}</head>
+            <head>${h.unescape(head.join(''))}</head>
             <body style="${bodyStyle}">${content}</body>
           </html>`)
         }
