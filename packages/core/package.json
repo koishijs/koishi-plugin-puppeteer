@@ -1,7 +1,7 @@
 {
   "name": "koishi-plugin-puppeteer",
   "description": "Browser API service for Koishi",
-  "version": "3.5.0",
+  "version": "3.6.1",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [
@@ -45,16 +45,17 @@
     "puppeteer"
   ],
   "peerDependencies": {
-    "koishi": "^4.11.0"
+    "koishi": "^4.15.0"
   },
   "devDependencies": {
-    "@types/node": "^18.15.3",
+    "@types/node": "^20.4.2",
     "atsc": "^1.2.2",
-    "koishi": "^4.12.0",
-    "typescript": "^4.9.5"
+    "koishi": "^4.15.0",
+    "typescript": "^5.1.6"
   },
   "dependencies": {
-    "puppeteer-core": "^19.7.4",
+    "@koishijs/canvas": "^0.1.1",
+    "puppeteer-core": "^19.11.1",
     "puppeteer-finder": "^1.1.0"
   }
 }
