@@ -2,6 +2,7 @@ import puppeteer, { Browser, ElementHandle, Page } from 'puppeteer-core'
 import find from 'puppeteer-finder'
 import { Context, h, hyphenate, Logger, Schema, Service } from 'koishi'
 import { SVG, SVGOptions } from './svg'
+import Canvas from './canvas'
 import { resolve } from 'path'
 
 export * from './svg'
@@ -48,6 +49,7 @@ class Puppeteer extends Service {
 
   constructor(ctx: Context, public config: Puppeteer.Config) {
     super(ctx, 'puppeteer')
+    ctx.plugin(Canvas)
   }
 
   async start() {

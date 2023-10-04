@@ -117,8 +117,8 @@ export class SVG extends Tag {
     const { left = 0, top = 0, bottom = height * ratio, right = width * ratio } = options.viewBox || {}
     this.view = { left, bottom, top, right }
     this.attr({
-      width: width,
-      height: height,
+      width,
+      height,
       viewBox: `${left} ${top} ${right} ${bottom}`,
       xmlns: 'http://www.w3.org/2000/svg',
       version: '1.1',

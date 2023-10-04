@@ -27,7 +27,8 @@
     },
     "service": {
       "implements": [
-        "puppeteer"
+        "puppeteer",
+        "canvas"
       ]
     }
   },
