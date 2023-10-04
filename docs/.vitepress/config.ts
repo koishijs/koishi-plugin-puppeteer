@@ -7,7 +7,7 @@ export default defineConfig({
 
   head: [
     ['link', { rel: 'icon', href: 'https://koishi.chat/logo.png' }],
-    ['link', { rel: 'manifest', href: 'https://koishi.chat/manifest.json' }],
+    ['link', { rel: 'manifest', href: '/manifest.json' }],
     ['meta', { name: 'theme-color', content: '#5546a3' }],
   ],
 
