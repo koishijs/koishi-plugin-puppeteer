@@ -3,12 +3,14 @@
   "version": "0.0.0",
   "private": true,
   "workspaces": [
+    "external/*",
     "packages/*"
   ],
   "packageManager": "yarn@1.22.19",
   "license": "MIT",
   "scripts": {
     "build": "yakumo build",
+    "lint": "eslint --ext=ts --cache",
     "docs:dev": "vitepress dev docs --open",
     "docs:build": "vitepress build docs",
     "docs:serve": "vitepress serve docs",
@@ -20,11 +22,13 @@
     "@koishijs/vitepress": "^1.6.5",
     "@types/node": "^18.15.3",
     "esbuild": "^0.14.54",
+    "@koishijs/eslint-config": "^1.0.4",
     "esbuild-register": "^3.4.2",
     "sass": "^1.59.2",
     "typescript": "^4.9.5",
     "yakumo": "^0.3.10",
     "yakumo-esbuild": "^0.3.22",
+    "eslint": "^8.45.0",
     "yakumo-esbuild-yaml": "^0.3.1",
     "yakumo-publish": "^0.3.4",
     "yakumo-publish-sync": "^0.3.2",
