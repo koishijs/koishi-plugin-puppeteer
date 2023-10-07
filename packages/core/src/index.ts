@@ -84,9 +84,8 @@ class Puppeteer extends Service {
         return h(element.type, attrs, element.children.map(transform).filter(Boolean))
       }
 
-      let page: Page
+      const page = await this.page()
       try {
-        page = await this.page()
         if (attrs.src) {
           await page.goto(attrs.src)
         } else {

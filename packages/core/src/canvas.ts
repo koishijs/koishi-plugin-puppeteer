@@ -1,12 +1,28 @@
-import { Logger } from 'koishi'
-import CanvasService, { Canvas, CanvasRenderingContext2D } from '@koishijs/canvas'
-import { ElementHandle, Page } from 'puppeteer-core'
+import CanvasService, { Canvas, CanvasRenderingContext2D, Image } from '@koishijs/canvas'
+import { arrayBufferToBase64, Context } from 'koishi'
+import { Page } from 'puppeteer-core'
+import { resolve } from 'path'
 
-const logger = new Logger('puppeteer')
+const kElement = Symbol('element')
 
-class CanvasInstance implements Canvas {
+class BaseElement {
+  public [kElement] = true
+
+  constructor(protected page: Page, protected id: string) {}
+
+  get selector() {
+    return `document.querySelector("#${this.id}")`
+  }
+
+  async dispose() {
+    await this.page.evaluate(`${this.selector}?.remove()`)
+    this.id = null
+  }
+}
+
+class CanvasElement extends BaseElement implements Canvas {
   private stmts: string[] = []
-  private ctx: CanvasRenderingContext2D = new Proxy({
+  private ctx = new Proxy({
     canvas: this,
     direction: 'inherit',
     fillStyle: '#000000',
@@ -41,7 +57,10 @@ class CanvasInstance implements Canvas {
       }
       return new Proxy(() => {}, {
         apply: (target, thisArg, argArray) => {
-          this.stmts.push(`ctx.${prop}(${argArray.map(v => JSON.stringify(v)).join(', ')});`)
+          this.stmts.push(`ctx.${prop}(${argArray.map((value) => {
+            if (value[kElement]) return value.selector
+            return JSON.stringify(value)
+          }).join(', ')});`)
         },
       })
     },
@@ -55,19 +74,22 @@ class CanvasInstance implements Canvas {
     },
   })
 
-  constructor(private page: Page, private handle: ElementHandle, public width: number, public height: number) {}
+  constructor(page: Page, id: string, public width: number, public height: number) {
+    super(page, id)
+  }
 
   getContext(type: '2d') {
     return this.ctx
   }
 
   async toDataURL(type: 'image/png') {
-    if (!this.page) throw new Error('canvas has been disposed')
+    if (!this.id) throw new Error('canvas has been disposed')
     try {
-      this.stmts.unshift(`const ctx = document.querySelector('canvas').getContext('2d');`)
-      await this.page.evaluate(this.stmts.join('\n'))
+      this.stmts.unshift(`(async (ctx) => {`)
+      const expr = this.stmts.join('\n  ') + `\n})(${this.selector}.getContext('2d'))`
       this.stmts = []
-      return await this.page.evaluate(`document.querySelector('canvas').toDataURL(${JSON.stringify(type)})`) as string
+      await this.page.evaluate(expr)
+      return await this.page.evaluate(`${this.selector}.toDataURL(${JSON.stringify(type)})`) as string
     } catch (err) {
       await this.dispose()
       throw err
@@ -78,27 +100,78 @@ class CanvasInstance implements Canvas {
     const url = await this.toDataURL(type)
     return Buffer.from(url.slice(url.indexOf(',') + 1), 'base64')
   }
+}
 
-  async dispose() {
-    const page = this.page
-    if (!page) return
-    this.page = null
-    await page.close().catch(logger.warn)
+class ImageElement extends BaseElement implements Image {
+  public naturalHeight: number
+  public naturalWidth: number
+
+  constructor(private ctx: Context, page: Page, id: string, private source: string | URL | Buffer | ArrayBufferLike) {
+    super(page, id)
+  }
+
+  async initialize() {
+    let base64: string
+    if (this.source instanceof URL) {
+      this.source = this.source.href
+    }
+    if (typeof this.source === 'string') {
+      const file = await this.ctx.http.file(this.source)
+      base64 = arrayBufferToBase64(file.data)
+    } else if (Buffer.isBuffer(this.source)) {
+      base64 = this.source.toString('base64')
+    } else {
+      base64 = arrayBufferToBase64(this.source)
+    }
+    const size = await this.page.evaluate(`loadImage(${JSON.stringify(this.id)}, ${JSON.stringify(base64)})`) as any
+    this.naturalWidth = size.width
+    this.naturalHeight = size.height
   }
 }
 
 export default class extends CanvasService {
   static using = ['puppeteer']
 
-  async createCanvas(width: number, height: number) {
+  private page: Page
+  private counter = 0
+
+  async start() {
     const page = await this.ctx.puppeteer.page()
     try {
-      await page.setContent(`<html><body><canvas width="${width}" height="${height}"></canvas></body></html>`)
-      const el = await page.$('canvas')
-      return new CanvasInstance(page, el, width, height)
+      await page.goto('file:///' + resolve(__dirname, '../index.html'))
+      this.page = page
     } catch (err) {
       await page.close()
       throw err
     }
+  }
+
+  async stop() {
+    await this.page?.close()
+    this.page = null
+  }
+
+  async createCanvas(width: number, height: number) {
+    try {
+      const name = `canvas_${++this.counter}`
+      await this.page.evaluate([
+        `const ${name} = document.createElement('canvas');`,
+        `${name}.width = ${width};`,
+        `${name}.height = ${height};`,
+        `${name}.id = ${JSON.stringify(name)};`,
+        `document.body.appendChild(${name});`,
+      ].join('\n'))
+      return new CanvasElement(this.page, name, width, height)
+    } catch (err) {
+      console.log(err)
+      throw err
+    }
+  }
+
+  async loadImage(source: string | URL | Buffer | ArrayBufferLike): Promise<Image> {
+    const id = `image_${++this.counter}`
+    const image = new ImageElement(this.ctx, this.page, id, source)
+    await image.initialize()
+    return image
   }
 }
