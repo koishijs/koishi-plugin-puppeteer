@@ -2,6 +2,7 @@ import CanvasService, { Canvas, CanvasRenderingContext2D, Image } from '@koishij
 import { arrayBufferToBase64, Context } from 'koishi'
 import { Page } from 'puppeteer-core'
 import { resolve } from 'path'
+import { pathToFileURL } from 'url'
 
 const kElement = Symbol('element')
 
@@ -138,7 +139,7 @@ export default class extends CanvasService {
   async start() {
     const page = await this.ctx.puppeteer.page()
     try {
-      await page.goto('file:///' + resolve(__dirname, '../index.html'))
+      await page.goto(pathToFileURL(resolve(__dirname, '../index.html')).href)
       this.page = page
     } catch (err) {
       await page.close()

@@ -4,9 +4,9 @@ import { Context, h, hyphenate, Schema, Service } from 'koishi'
 import { SVG, SVGOptions } from './svg'
 import Canvas from './canvas'
 import { resolve } from 'path'
+import { pathToFileURL } from 'url'
 
 export * from './svg'
-export * from 'puppeteer-core'
 
 declare module 'koishi' {
   interface Context {
@@ -87,7 +87,7 @@ class Puppeteer extends Service {
         if (attrs.src) {
           await page.goto(attrs.src)
         } else {
-          await page.goto('file:///' + resolve(__dirname, '../index.html'))
+          await page.goto(pathToFileURL(resolve(__dirname, '../index.html')).href)
           const bodyStyle = typeof attrs.style === 'object'
             ? transformStyle({ display: 'inline-block' }, attrs.style)
             : ['display: inline-block', attrs.style].filter(Boolean).join('; ')
