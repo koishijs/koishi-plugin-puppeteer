@@ -1,5 +1,5 @@
 import { Shooter } from 'puppeteer-core'
-import { Context, h, Logger, noop, Schema, Time } from 'koishi'
+import { Context, h, noop, Schema, Time } from 'koishi'
 import {} from 'koishi-plugin-puppeteer'
 import { PNG } from 'pngjs'
 
@@ -9,10 +9,8 @@ declare module 'koishi' {
   }
 }
 
-const logger = new Logger('puppeteer')
-
 export const name = 'screenshot'
-export const using = ['puppeteer'] as const
+export const inject = ['puppeteer']
 
 export interface Config {
   loadTimeout?: number
@@ -44,10 +42,11 @@ export const Config: Schema<Config> = Schema.object({
 }).description('截图设置')
 
 export function apply(ctx: Context, config: Config) {
+  const logger = ctx.logger('screenshot')
   const { defaultViewport } = ctx.puppeteer.config
   const { protocols, maxSize, loadTimeout, idleTimeout } = config
 
-  ctx.command('shot <url> [selector:rawtext]', '网页截图')
+  ctx.command('shot <url> [selector:text]', '网页截图')
     .alias('screenshot')
     .option('full', '-f  对整个可滚动区域截图')
     .option('viewport', '-v <viewport:string>  指定视口')

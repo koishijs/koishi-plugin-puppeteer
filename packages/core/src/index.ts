@@ -1,6 +1,6 @@
 import puppeteer, { Browser, ElementHandle, Page } from 'puppeteer-core'
 import find from 'puppeteer-finder'
-import { Context, h, hyphenate, Logger, Schema, Service } from 'koishi'
+import { Context, h, hyphenate, Schema, Service } from 'koishi'
 import { SVG, SVGOptions } from './svg'
 import Canvas from './canvas'
 import { resolve } from 'path'
@@ -41,8 +41,6 @@ declare module 'puppeteer-core/lib/types' {
 
 type RenderCallback = (page: Page, next: (handle?: ElementHandle) => Promise<string>) => Promise<string>
 
-const logger = new Logger('puppeteer')
-
 class Puppeteer extends Service {
   browser: Browser
   executable: string
@@ -55,13 +53,13 @@ class Puppeteer extends Service {
   async start() {
     let { executablePath } = this.config
     if (!executablePath) {
-      logger.info('chrome executable found at %c', executablePath = find())
+      this.logger.info('chrome executable found at %c', executablePath = find())
     }
     this.browser = await puppeteer.launch({
       ...this.config,
       executablePath,
     })
-    logger.debug('browser launched')
+    this.logger.debug('browser launched')
 
     const transformStyle = (source: {}, base = {}) => {
       return Object.entries({ ...base, ...source }).map(([key, value]) => {
