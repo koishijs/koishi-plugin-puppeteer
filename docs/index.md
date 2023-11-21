@@ -26,7 +26,7 @@ Ubuntu 在安装 Chrome 时可能会使用 snap 进行隔离。这将导致无�
     sudo snap connect <snap app name>:your-koishi-workspace-path
     ```
 - 移动到 `snap` 允许访问的文件夹或挂载点中（具体允许文件夹或挂载点请查询 snap 级别）
-  - `/home`: 用户挂载点
+  - `/home/$USER`: 用户家目录
   - `/media`: 可移动媒体设备的挂载点
   - ~~`/mnt`: 临时挂载点~~
   - ~~`/tmp`: 临时文件夹~~
