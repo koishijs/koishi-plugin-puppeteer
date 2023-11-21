@@ -13,7 +13,7 @@ Ubuntu 在安装 Chrome 时可能会使用 snap 进行隔离。这将导致无�
 [W] app Error: net::ERR_FILE_NOT_FOUND at file:///your-koishi-workspace-path/node_modules/koishi-plugin-puppeteer/index.html
 ```
 
-可以进行如下方法解决：
+可以选择下列方法**之一**解决：
 - 使用传统 `deb` 包进行安装
     ```bash
     > curl -o https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb chrome.deb
@@ -25,7 +25,7 @@ Ubuntu 在安装 Chrome 时可能会使用 snap 进行隔离。这将导致无�
     ```bash
     sudo snap connect <snap app name>:your-koishi-workspace-path
     ```
-- 将你想使用的文件移动到 `snap` 允许访问的文件夹或挂载点中（具体允许文件夹或挂载点请查询 snap 级别）
+- 移动到 `snap` 允许访问的文件夹或挂载点中（具体允许文件夹或挂载点请查询 snap 级别）
   - `/home`: 用户挂载点
   - `/media`: 可移动媒体设备的挂载点
   - ~~`/mnt`: 临时挂载点~~
