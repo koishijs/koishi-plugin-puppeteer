@@ -7,19 +7,19 @@ koishi-plugin-puppeteer 提供了通用的浏览器服务，可用于网页截�
 :::
 
 ::: warning
-Ubuntu 在安装 Chrome 时可能会使用 snap 进行隔离。这将导致无法访问大部分主机文件夹或挂载点，并且 Koishi 可能会输出如下警告：
+由于 Ubuntu 中 `Software Updater` 会使用 [snap](https://snapcraft.io/) 安装 Chromium 与 Chrome。该方法会将应用隔离运行在 namespace 沙箱中。
 
+当 Chromium 浏览器在隔离环境下使用时， Koishi 会抛出一下错误：
 ```bash
 [W] app Error: net::ERR_FILE_NOT_FOUND at file:///your-koishi-workspace-path/node_modules/koishi-plugin-puppeteer/index.html
 ```
 
 可以选择下列方法**之一**解决：
+- 不要使用 `Software Updater`
 - 使用传统 `deb` 包进行安装
     ```bash
     > curl -o https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb chrome.deb
-    ...
     > dpkg chrome.deb
-    ...
     ```
 - 将你想使用的文件夹添加到 `snap` 应用程序访问列表中
     ```bash
