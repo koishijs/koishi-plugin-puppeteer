@@ -7,15 +7,19 @@ koishi-plugin-puppeteer 提供了通用的浏览器服务，可用于网页截�
 :::
 
 ::: warning
-由于 Ubuntu 中 `Software Updater` 会使用 [snap](https://snapcraft.io/) 安装 Chromium 与 Chrome。该方法会将应用隔离运行在 namespace 沙箱中。
+由于 Ubuntu 中 `Software Updater` 会使用 [snap](https://snapcraft.io/) 安装 Chromium 与 Chrome。这会将应用隔离运行在一个 namespace 沙箱中。
 
 当 Chromium 浏览器在隔离环境下使用时， Koishi 会抛出以下错误：
 ```bash
 [W] app Error: net::ERR_FILE_NOT_FOUND at file:///your-koishi-workspace-path/node_modules/koishi-plugin-puppeteer/index.html
 ```
 
+<details>
+  <summary>点我查看解决方法</summary>
+
 可以选择下列方法**之一**解决：
-- 不要使用 `Software Updater`
+- 使用其他 Linux 发行版
+- 不使用 `Software Updater`
 - 使用传统 `deb` 包进行安装
     ```bash
     > curl -o https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb chrome.deb
@@ -30,6 +34,8 @@ koishi-plugin-puppeteer 提供了通用的浏览器服务，可用于网页截�
   - `/media`: 可移动媒体设备的挂载点
   - ~~`/mnt`: 临时挂载点~~
   - ~~`/tmp`: 临时文件夹~~
+
+</details>
 :::
 
 ## 相关生态
