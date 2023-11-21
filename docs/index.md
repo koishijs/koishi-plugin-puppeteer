@@ -6,7 +6,7 @@ koishi-plugin-puppeteer 提供了通用的浏览器服务，可用于网页截�
 为了正常使用这个插件，你首先需要确保你的电脑上已经安装有 Chrome / Edge / Firefox。同时，我们建议你保持浏览器和本插件的更新，因为版本不匹配可能会导致本插件无法正常使用。
 :::
 
-::: warn
+::: warning
 Ubuntu 在安装 Chrome 时可能会使用 snap 进行隔离。这将导致无法访问大部分主机文件夹或挂载点，并且 Koishi 可能会输出如下警告：
 
 ```bash
