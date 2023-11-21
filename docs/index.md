@@ -7,7 +7,7 @@ koishi-plugin-puppeteer 提供了通用的浏览器服务，可用于网页截�
 :::
 
 ::: warning
-由于 Ubuntu apt 存储库中没有 Chromium 包，只能通过 [snap](https://snapcraft.io/) 安装 Chromium 或 Chrome。这会将 Chromium 隔离运行在一个沙箱中，只能访问受限的文件系统。
+由于 Ubuntu 在 19.10 以后转向[通过 snap 提供 Chromium 包](https://ubuntu.com/blog/chromium-in-ubuntu-deb-to-snap-transition)，snap 会将 Chromium 隔离运行在一个沙箱中，只能访问受限的文件系统。
 
 当 Chromium 浏览器在隔离环境下使用时， Koishi 会抛出以下错误：
 ```bash
