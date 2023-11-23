@@ -15,15 +15,15 @@ export default defineConfig({
     sidebar: [{
       text: '指南',
       items: [
-        { text: '介绍', link: './' },
-        { text: 'API', link: './api' },
+        { text: '介绍', link: '/' },
+        { text: 'API', link: '/api' },
       ],
     }, {
       text: '插件',
       items: [
-        { text: '生成色图 (Color)', link: './plugins/color' },
-        { text: '浏览器 (Puppeteer)', link: './plugins/puppeteer' },
-        { text: '网页截图 (Screenshot)', link: './plugins/screenshot' },
+        { text: '生成色图 (Color)', link: '/plugins/color' },
+        { text: '浏览器 (Puppeteer)', link: '/plugins/puppeteer' },
+        { text: '网页截图 (Screenshot)', link: '/plugins/screenshot' },
       ],
     }, {
       text: '更多',
