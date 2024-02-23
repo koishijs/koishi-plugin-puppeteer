@@ -1,3 +1,3 @@
-import { defineTheme } from '@koishijs/vitepress/client'
+import { defineTheme } from '@cordisjs/vitepress/client'
 
 export default defineTheme()

@@ -1,12 +1,12 @@
 {
   "name": "koishi-plugin-screenshot",
   "description": "Take screenshots of any website",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [
     "lib",
-    "dist"
+    "src"
   ],
   "author": "Shigma <shigma10826@gmail.com>",
   "license": "MIT",
@@ -43,16 +43,16 @@
     "puppeteer"
   ],
   "peerDependencies": {
-    "koishi": "^4.15.0",
-    "koishi-plugin-puppeteer": "^3.6.1"
+    "koishi": "^4.17.1",
+    "koishi-plugin-puppeteer": "^3.7.3"
   },
   "devDependencies": {
-    "@types/node": "^20.4.2",
-    "@types/pngjs": "^6.0.1",
-    "atsc": "^1.2.2",
-    "koishi": "^4.15.0",
-    "koishi-plugin-puppeteer": "^3.6.1",
-    "typescript": "^5.1.6"
+    "@types/node": "^20.10.2",
+    "@types/pngjs": "^6.0.4",
+    "atsc": "^2.0.1",
+    "koishi": "^4.17.1",
+    "koishi-plugin-puppeteer": "^3.7.3",
+    "typescript": "^5.3.2"
   },
   "dependencies": {
     "pngjs": "^6.0.0"

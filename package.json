@@ -2,6 +2,7 @@
   "name": "@root/puppeteer",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "workspaces": [
     "external/*",
     "packages/*"
@@ -19,23 +20,18 @@
     "pub": "yakumo publish"
   },
   "devDependencies": {
-    "@koishijs/eslint-config": "^1.0.4",
-    "@koishijs/vitepress": "^3.0.0",
-    "@types/node": "^20.4.2",
-    "esbuild": "^0.18.14",
-    "esbuild-register": "^3.4.2",
-    "eslint": "^8.45.0",
-    "sass": "^1.63.6",
-    "typescript": "^5.1.6",
-    "yakumo": "^0.3.13",
-    "yakumo-esbuild": "^0.3.25",
-    "yakumo-esbuild-yaml": "^0.3.1",
-    "yakumo-publish": "^0.3.4",
-    "yakumo-publish-sync": "^0.3.3",
-    "yakumo-tsc": "^0.3.12",
-    "yakumo-upgrade": "^0.3.4",
-    "yakumo-version": "^0.3.4",
-    "yml-register": "^1.1.0",
-    "vitepress": "1.0.0-rc.4"
+    "@cordisjs/eslint-config": "^1.0.4",
+    "@cordisjs/vitepress": "^3.2.6",
+    "@types/node": "^20.10.2",
+    "esbuild": "^0.18.20",
+    "esbuild-register": "^3.5.0",
+    "eslint": "^8.55.0",
+    "sass": "^1.69.5",
+    "typescript": "^5.3.2",
+    "vitepress": "1.0.0-rc.40",
+    "yakumo": "^1.0.0-beta.8",
+    "yakumo-esbuild": "^1.0.0-beta.4",
+    "yakumo-tsc": "^1.0.0-beta.3",
+    "yml-register": "^1.2.5"
   }
 }
