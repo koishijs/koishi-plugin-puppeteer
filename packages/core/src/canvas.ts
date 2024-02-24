@@ -131,7 +131,7 @@ class ImageElement extends BaseElement implements Image {
 }
 
 export default class extends CanvasService {
-  static inject = ['puppeteer']
+  static inject = ['puppeteer', 'http']
 
   private page: Page
   private counter = 0

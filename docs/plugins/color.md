@@ -17,7 +17,7 @@
 </chat-panel>
 
 <script lang="ts" setup>
-import { useActiveTab } from '@koishijs/vitepress/client'
+import { useActiveTab } from '@cordisjs/vitepress/client'
 const colors = {
   'color:code': '#66ccff',
   'color:gradient': 'linear-gradient(-30deg, #fc6076 0%, #ff9a44 100%)',

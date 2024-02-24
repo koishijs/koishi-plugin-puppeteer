@@ -1,5 +1,6 @@
 import puppeteer, { Browser, ElementHandle, Page } from 'puppeteer-core'
 import find from 'puppeteer-finder'
+import {} from 'undios-proxy-agent'
 import { Context, h, hyphenate, Schema, Service } from 'koishi'
 import { SVG, SVGOptions } from './svg'
 import Canvas from './canvas'
@@ -37,6 +38,9 @@ declare module 'puppeteer-core/lib/types' {
 type RenderCallback = (page: Page, next: (handle?: ElementHandle) => Promise<string>) => Promise<string>
 
 class Puppeteer extends Service {
+  static [Service.provide] = 'puppeteer'
+  static inject = ['http']
+
   browser: Browser
   executable: string
 
@@ -50,9 +54,15 @@ class Puppeteer extends Service {
     if (!executablePath) {
       this.logger.info('chrome executable found at %c', executablePath = find())
     }
+    const { proxyAgent } = this.ctx.http.config
+    const args = this.config.args || []
+    if (proxyAgent && !args.some(arg => arg.startsWith('--proxy-server'))) {
+      args.push(`--proxy-server=${proxyAgent}`)
+    }
     this.browser = await puppeteer.launch({
       ...this.config,
       executablePath,
+      args,
     })
     this.logger.debug('browser launched')
 
