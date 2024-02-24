@@ -56,8 +56,8 @@
     "undios-proxy-agent": "^0.1.4"
   },
   "dependencies": {
+    "puppeteer-core": "^22.2.0",
     "@koishijs/canvas": "^0.2.0",
-    "puppeteer-core": "^19.11.1",
     "puppeteer-finder": "^1.1.0"
   }
 }

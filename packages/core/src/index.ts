@@ -24,11 +24,6 @@ declare module 'puppeteer-core/lib/types' {
     encoding?: 'binary'
   }
 
-  interface Shooter {
-    screenshot(options?: Base64ScreenshotOptions): Promise<string>
-    screenshot(options?: BinaryScreenshotOptions): Promise<Buffer>
-  }
-
   interface Page {
     screenshot(options?: Base64ScreenshotOptions): Promise<string>
     screenshot(options?: BinaryScreenshotOptions): Promise<Buffer>
