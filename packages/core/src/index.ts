@@ -126,6 +126,7 @@ class Puppeteer extends Service {
 
   render = async (content: string, callback?: RenderCallback) => {
     const page = await this.page()
+    await page.goto(pathToFileURL(resolve(__dirname, '../index.html')).href)
     if (content) await page.setContent(content)
 
     callback ||= async (_, next) => page.$('body').then(next)
