@@ -19,7 +19,6 @@ koishi-plugin-puppeteer 提供了通用的浏览器服务，可用于网页截�
 
 可以选择下列方法**之一**解决：
 - 使用其他 Linux 发行版
-- 不使用 `Software Updater`
 - 使用传统 `deb` 包进行安装
     ```bash
     > curl -o https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb chrome.deb
