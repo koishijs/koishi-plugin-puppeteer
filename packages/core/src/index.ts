@@ -135,7 +135,6 @@ class Puppeteer extends Service {
     const output = await callback(page, async (handle) => {
       const clip = handle ? await handle.boundingBox() : null
       const buffer = await page.screenshot({ clip, ...renderConfig })
-      // check screenshotOptions.type to determine the image MIME type
       return h.image(buffer, `image/${renderConfig.type}`).toString()
     })
 
