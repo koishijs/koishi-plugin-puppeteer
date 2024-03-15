@@ -37,6 +37,8 @@ declare module 'puppeteer-core/lib/types' {
 
 type RenderCallback = (page: Page, next: (handle?: ElementHandle) => Promise<string>) => Promise<string>
 
+type ImageType = 'png' | 'jpeg' | 'webp'
+
 class Puppeteer extends Service {
   static [Service.provide] = 'puppeteer'
   static inject = ['http']
@@ -128,12 +130,13 @@ class Puppeteer extends Service {
     const page = await this.page()
     await page.goto(pathToFileURL(resolve(__dirname, '../index.html')).href)
     if (content) await page.setContent(content)
-
+    const renderConfig = this.config.render
     callback ||= async (_, next) => page.$('body').then(next)
     const output = await callback(page, async (handle) => {
       const clip = handle ? await handle.boundingBox() : null
-      const buffer = await page.screenshot({ clip })
-      return h.image(buffer, 'image/png').toString()
+      const buffer = await page.screenshot({ clip, ...renderConfig })
+      // check screenshotOptions.type to determine the image MIME type
+      return h.image(buffer, `image/${renderConfig.type}`).toString()
     })
 
     page.close()
@@ -146,7 +149,12 @@ namespace Puppeteer {
 
   type LaunchOptions = Parameters<typeof puppeteer.launch>[0]
 
-  export interface Config extends LaunchOptions {}
+  export interface Config extends LaunchOptions {
+    render: {
+      type: ImageType
+      quality: number
+    }
+  }
 
   export const Config = Schema.intersect([
     Schema.object({
@@ -164,6 +172,21 @@ namespace Puppeteer {
       }),
       ignoreHTTPSErrors: Schema.boolean().description('在导航时忽略 HTTPS 错误。').default(false),
     }).description('浏览器设置'),
+    Schema.object({
+      render: Schema.intersect([
+        Schema.object({
+          type: Schema.union<ImageType>(['png', 'jpeg', 'webp']).description('图片类型。').default('png'),
+        }),
+        Schema.union([
+          Schema.object({
+            type: Schema.const('png'),
+          }),
+          Schema.object({
+            quality: Schema.number().min(0).max(100).step(1).description('图片质量。').default(80),
+          }),
+        ]),
+      ]),
+    }).description('渲染设置'),
   ]) as Schema<Config>
 }
 
