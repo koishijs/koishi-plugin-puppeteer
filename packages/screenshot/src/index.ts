@@ -1,4 +1,4 @@
-import { Shooter } from 'puppeteer-core'
+import { ElementHandle, Page } from 'puppeteer-core'
 import { Context, h, noop, Schema, Time } from 'koishi'
 import {} from 'koishi-plugin-puppeteer'
 import { PNG } from 'pngjs'
@@ -102,7 +102,7 @@ export function apply(ctx: Context, config: Config) {
         return '无法打开页面。'
       }
 
-      const shooter: Shooter = selector ? await page.$(selector) : page
+      const shooter: Page | ElementHandle = selector ? await page.$(selector) : page
       if (!shooter) return '找不到满足该选择器的元素。'
 
       return shooter.screenshot({
