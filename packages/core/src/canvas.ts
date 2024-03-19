@@ -1,6 +1,6 @@
 import CanvasService, { Canvas, CanvasRenderingContext2D, Image } from '@koishijs/canvas'
 import { arrayBufferToBase64, Context } from 'koishi'
-import { Page } from 'puppeteer-core'
+import { Page, BrowserContext } from 'puppeteer-core'
 import { resolve } from 'path'
 import { pathToFileURL } from 'url'
 
@@ -134,22 +134,29 @@ export default class extends CanvasService {
   static inject = ['puppeteer', 'http']
 
   private page: Page
+  private context: BrowserContext
   private counter = 0
 
   async start() {
-    const page = await this.ctx.puppeteer.page()
+    const browser = this.ctx.puppeteer.browser
+    const context = await browser.createBrowserContext()
+    const page = await context.newPage()
     try {
       await page.goto(pathToFileURL(resolve(__dirname, '../index.html')).href)
       this.page = page
+      this.context = context
     } catch (err) {
       await page.close()
+      await context.close()
       throw err
     }
   }
 
   async stop() {
     await this.page?.close()
+    await this.context?.close()
     this.page = null
+    this.context = null
   }
 
   async createCanvas(width: number, height: number) {
