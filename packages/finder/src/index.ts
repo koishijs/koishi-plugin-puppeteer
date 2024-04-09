@@ -9,7 +9,9 @@ function findChromes() {
   switch (process.platform) {
     case 'win32': return win32()
     case 'darwin': return darwin()
-    case 'linux': return linux()
+    case 'linux':
+    case 'android':
+      return linux()
     default:
       throw ERROR_PLATFORM_NOT_SUPPORT
   }
@@ -20,7 +22,7 @@ function findChromes() {
  * @returns executable chrome full path
  * @throws
  * if no executable chrome find, ERROR_NO_INSTALLATIONS_FOUND will be throw
- * if platform is not one if ['win32','darwin','linux'], ERROR_PLATFORM_NOT_SUPPORT will be throw
+ * if platform is not one if ['win32','darwin','linux','android'], ERROR_PLATFORM_NOT_SUPPORT will be throw
  */
 export = function findChrome() {
   const installations = findChromes()
