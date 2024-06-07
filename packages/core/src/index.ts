@@ -23,6 +23,7 @@ class Puppeteer extends Service {
 
   browser: Browser
   executable: string
+  private browserWSEndpoint: string
 
   constructor(ctx: Context, public config: Puppeteer.Config) {
     super(ctx, 'puppeteer')
@@ -45,6 +46,7 @@ class Puppeteer extends Service {
       args,
     })
     this.ctx.logger.debug('browser launched')
+    this.browserWSEndpoint = this.browser.wsEndpoint()
 
     const transformStyle = (source: {}, base = {}) => {
       return Object.entries({ ...base, ...source }).map(([key, value]) => {
@@ -100,7 +102,16 @@ class Puppeteer extends Service {
     await this.browser?.close()
   }
 
-  page = () => this.browser.newPage()
+  page = async () => {
+    if (!this.browser.connected) {
+      this.browser = await puppeteer.connect({
+        ...this.config,
+        browserWSEndpoint: this.browserWSEndpoint
+      })
+      this.ctx.logger.debug('browser reconnect')
+    }
+    return this.browser.newPage()
+  }
 
   svg = (options?: SVGOptions) => new SVG(options)
 
