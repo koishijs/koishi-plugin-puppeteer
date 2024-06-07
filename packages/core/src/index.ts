@@ -1,6 +1,6 @@
 import puppeteer, { Browser, ElementHandle, Page } from 'puppeteer-core'
 import find from 'puppeteer-finder'
-import {} from 'undios-proxy-agent'
+import {} from '@cordisjs/plugin-proxy-agent'
 import { Context, h, hyphenate, Schema, Service } from 'koishi'
 import { SVG, SVGOptions } from './svg'
 import Canvas from './canvas'
@@ -12,26 +12,6 @@ export * from './svg'
 declare module 'koishi' {
   interface Context {
     puppeteer: Puppeteer
-  }
-}
-
-declare module 'puppeteer-core/lib/types' {
-  interface Base64ScreenshotOptions extends ScreenshotOptions {
-    encoding: 'base64'
-  }
-
-  interface BinaryScreenshotOptions extends ScreenshotOptions {
-    encoding?: 'binary'
-  }
-
-  interface Page {
-    screenshot(options?: Base64ScreenshotOptions): Promise<string>
-    screenshot(options?: BinaryScreenshotOptions): Promise<Buffer>
-  }
-
-  interface ElementHandle {
-    screenshot(options?: Base64ScreenshotOptions): Promise<string>
-    screenshot(options?: BinaryScreenshotOptions): Promise<Buffer>
   }
 }
 
@@ -52,7 +32,7 @@ class Puppeteer extends Service {
   async start() {
     let { executablePath } = this.config
     if (!executablePath) {
-      this.logger.info('chrome executable found at %c', executablePath = find())
+      this.ctx.logger.info('chrome executable found at %c', executablePath = find())
     }
     const { proxyAgent } = this.ctx.http.config
     const args = this.config.args || []
@@ -64,7 +44,7 @@ class Puppeteer extends Service {
       executablePath,
       args,
     })
-    this.logger.debug('browser launched')
+    this.ctx.logger.debug('browser launched')
 
     const transformStyle = (source: {}, base = {}) => {
       return Object.entries({ ...base, ...source }).map(([key, value]) => {
@@ -108,7 +88,7 @@ class Puppeteer extends Service {
         })
         const body = await page.$(attrs.selector || 'body')
         const clip = await body.boundingBox()
-        const screenshot = await page.screenshot({ clip }) as Buffer
+        const screenshot = await page.screenshot({ clip })
         return h.image(screenshot, 'image/png')
       } finally {
         await page?.close()

@@ -46,14 +46,14 @@
     "puppeteer"
   ],
   "peerDependencies": {
-    "koishi": "^4.17.2"
+    "koishi": "^4.17.8"
   },
   "devDependencies": {
     "@types/node": "^20.10.2",
     "atsc": "^2.0.1",
-    "koishi": "^4.17.2",
+    "koishi": "^4.17.8",
     "typescript": "^5.3.2",
-    "undios-proxy-agent": "^0.2.0"
+    "@cordisjs/plugin-proxy-agent": "^0.3.2"
   },
   "dependencies": {
     "@koishijs/canvas": "^0.2.0",
