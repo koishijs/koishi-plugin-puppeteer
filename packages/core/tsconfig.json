@@ -3,6 +3,9 @@
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "lib",
+    "module": "esnext",
+    "emitDeclarationOnly": true,
+    "moduleResolution": "bundler",
   },
   "include": [
     "src",
