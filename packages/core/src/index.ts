@@ -1,4 +1,4 @@
-import puppeteer, { Browser, ElementHandle, Page } from 'puppeteer-core'
+import puppeteer, { Browser, ConnectOptions, ElementHandle, Page } from 'puppeteer-core'
 import find from 'puppeteer-finder'
 import {} from 'undios-proxy-agent'
 import { Context, h, hyphenate, Schema, Service } from 'koishi'
@@ -50,21 +50,43 @@ class Puppeteer extends Service {
   }
 
   async start() {
-    let { executablePath } = this.config
-    if (!executablePath) {
-      this.logger.info('chrome executable found at %c', executablePath = find())
+    if (this.config.connect.enabled && (this.config.connect.browserURL || this.config.connect.browserWSEndpoint)) {
+      const { browserURL, browserWSEndpoint, headers } = this.config.connect
+      const { defaultViewport, ignoreHTTPSErrors } = this.config
+      // ws://{host}:{port}/devtools/browser/{id}
+      if (browserWSEndpoint && new URL(browserWSEndpoint).pathname.startsWith('/devtools/browser/')) {
+        throw new Error('invalid browserWSEndpoint for remote debugging')
+      }
+      // only browserURL or browserWSEndpoint is required
+      const endpoint = (browserURL && browserWSEndpoint) ? { browserURL } : { browserURL, browserWSEndpoint }
+      try {
+        this.browser = await puppeteer.connect({
+          ...endpoint,
+          defaultViewport,
+          ignoreHTTPSErrors,
+          headers,
+        })
+        this.logger.info('browser connected to %c', browserURL || browserWSEndpoint)
+      } catch (error) {
+        this.logger.error(error.message)
+      }
+    } else {
+      let { executablePath } = this.config
+      if (!executablePath) {
+        this.logger.info('chrome executable found at %c', executablePath = find())
+      }
+      const { proxyAgent } = this.ctx.http.config
+      const args = this.config.args || []
+      if (proxyAgent && !args.some(arg => arg.startsWith('--proxy-server'))) {
+        args.push(`--proxy-server=${proxyAgent}`)
+      }
+      this.browser = await puppeteer.launch({
+        ...this.config,
+        executablePath,
+        args,
+      })
+      this.logger.debug('browser launched')
     }
-    const { proxyAgent } = this.ctx.http.config
-    const args = this.config.args || []
-    if (proxyAgent && !args.some(arg => arg.startsWith('--proxy-server'))) {
-      args.push(`--proxy-server=${proxyAgent}`)
-    }
-    this.browser = await puppeteer.launch({
-      ...this.config,
-      executablePath,
-      args,
-    })
-    this.logger.debug('browser launched')
 
     const transformStyle = (source: {}, base = {}) => {
       return Object.entries({ ...base, ...source }).map(([key, value]) => {
@@ -117,7 +139,11 @@ class Puppeteer extends Service {
   }
 
   async stop() {
-    await this.browser?.close()
+    if (this.config.connect.enabled) {
+      await this.browser?.disconnect()
+    } else {
+      await this.browser?.close()
+    }
   }
 
   page = () => this.browser.newPage()
@@ -146,7 +172,9 @@ namespace Puppeteer {
 
   type LaunchOptions = Parameters<typeof puppeteer.launch>[0]
 
-  export interface Config extends LaunchOptions {}
+  export interface Config extends LaunchOptions {
+    connect: { enabled: boolean } & ConnectOptions
+  }
 
   export const Config = Schema.intersect([
     Schema.object({
@@ -157,6 +185,20 @@ namespace Puppeteer {
         .default(process.getuid?.() === 0 ? ['--no-sandbox'] : []),
     }).description('启动设置'),
     Schema.object({
+      connect: Schema.intersect([
+        Schema.object({
+          enabled: Schema.boolean().description('是否连接一个现有的浏览器实例，这将忽略本地浏览器连接。').default(false),
+        }),
+        Schema.union([
+          Schema.object({
+            enabled: Schema.const(true).required(),
+            browserURL: Schema.string().description('浏览器的 URL 地址。'),
+            browserWSEndpoint: Schema.string().description('浏览器的 WebSocket 端点。'),
+            headers: Schema.dict(String).role('table').description('远程浏览器的请求头。'),
+          }),
+          Schema.object({}),
+        ]),
+      ]),
       defaultViewport: Schema.object({
         width: Schema.natural().description('默认的视图宽度。').default(1280),
         height: Schema.natural().description('默认的视图高度。').default(768),
