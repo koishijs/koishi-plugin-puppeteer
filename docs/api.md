@@ -4,23 +4,33 @@
 
 可以通过 `ctx.puppeteer` 访问。
 
-### puppeteer.launch()
+### broswer
 
-- 返回值: `Promise<void>`
+- 类型: `Browser`
 
-启动并连接浏览器。
+浏览器实例。
 
-### puppeteer.close()
+### puppeteer.stop()
 
 - 返回值: `Promise<void>`
 
 关闭浏览器并取消连接。
+
+::: tip
+在使用远程浏览器时，关闭浏览器不会关闭远程浏览器进程。
+:::
 
 ### puppeteer.page()
 
 - 返回值: `Promise<Page>`
 
 创建一个新页面。
+
+### puppeteer.svg(options?)
+
+- 返回值: `SVG`
+
+创建一个 SVG 实例。
 
 ### puppeteer.render(content, callback?)
 
