@@ -50,41 +50,34 @@ class Puppeteer extends Service {
   }
 
   async start() {
-    if (this.config.connect.enabled && (this.config.connect.browserURL || this.config.connect.browserWSEndpoint)) {
-      const { browserURL, browserWSEndpoint, headers } = this.config.connect
-      const { defaultViewport, ignoreHTTPSErrors } = this.config
-      // ws://{host}:{port}/devtools/browser/{id}
-      if (browserWSEndpoint && new URL(browserWSEndpoint).pathname.startsWith('/devtools/browser/')) {
-        throw new Error('invalid browserWSEndpoint for remote debugging')
+    const { remote, endpoint, executablePath, headers, headless, args, ...config } = this.config
+    const options = remote ? { headers, ...config } : { executablePath, headless, args, ...config }
+
+    if (remote) {
+      const endpointURL = new URL(endpoint)
+      if (['ws:', 'wss:'].includes(endpointURL.protocol)) {
+        if (endpointURL.pathname === '/devtools/browser/') {
+          throw new Error('invalid browserWSEndpoint for remote debugging')
+        }
+        options.browserWSEndpoint = endpoint
+      } else if (['http:', 'https:'].includes(endpointURL.protocol)) {
+        options.browserURL = endpoint
       }
-      // only browserURL or browserWSEndpoint is required
-      const endpoint = (browserURL && browserWSEndpoint) ? { browserURL } : { browserURL, browserWSEndpoint }
-      try {
-        this.browser = await puppeteer.connect({
-          ...endpoint,
-          defaultViewport,
-          ignoreHTTPSErrors,
-          headers,
-        })
-        this.logger.info('browser connected to %c', browserURL || browserWSEndpoint)
-      } catch (error) {
-        this.logger.error(error.message)
-      }
+
+      this.browser = await puppeteer.connect(options)
+      this.logger.info('remmote connected to %c', endpoint)
     } else {
-      let { executablePath } = this.config
+      this.executable = executablePath || find()
       if (!executablePath) {
-        this.logger.info('chrome executable found at %c', executablePath = find())
+        this.logger.info('chrome executable found at %c', this.executable)
       }
+
       const { proxyAgent } = this.ctx.http.config
-      const args = this.config.args || []
       if (proxyAgent && !args.some(arg => arg.startsWith('--proxy-server'))) {
         args.push(`--proxy-server=${proxyAgent}`)
       }
-      this.browser = await puppeteer.launch({
-        ...this.config,
-        executablePath,
-        args,
-      })
+
+      this.browser = await puppeteer.launch({ ...options, args })
       this.logger.debug('browser launched')
     }
 
@@ -139,7 +132,7 @@ class Puppeteer extends Service {
   }
 
   async stop() {
-    if (this.config.connect.enabled) {
+    if (this.config.remote) {
       await this.browser?.disconnect()
     } else {
       await this.browser?.close()
@@ -172,33 +165,31 @@ namespace Puppeteer {
 
   type LaunchOptions = Parameters<typeof puppeteer.launch>[0]
 
-  export interface Config extends LaunchOptions {
-    connect: { enabled: boolean } & ConnectOptions
+  export interface Config extends LaunchOptions, ConnectOptions {
+    remote: boolean
+    endpoint: string
   }
 
   export const Config = Schema.intersect([
     Schema.object({
-      executablePath: Schema.string().description('可执行文件的路径。缺省时将自动从系统中寻找。'),
-      headless: Schema.boolean().description('是否开启[无头模式](https://developer.chrome.com/blog/headless-chrome/)。').default(true),
-      args: Schema.array(String)
-        .description('额外的浏览器参数。Chromium 参数可以参考[这个页面](https://peter.sh/experiments/chromium-command-line-switches/)。')
-        .default(process.getuid?.() === 0 ? ['--no-sandbox'] : []),
-    }).description('启动设置'),
+      remote: Schema.boolean().description('是否连接到远程浏览器。').default(false),
+    }).description('连接设置'),
+    Schema.union([
+      Schema.object({
+        remote: Schema.const(true).required(),
+        endpoint: Schema.string().description('远程浏览器的端点。'),
+        headers: Schema.dict(String).role('table').description('远程浏览器的请求头。'),
+      }),
+      Schema.object({
+        remote: Schema.const(false),
+        executablePath: Schema.string().description('可执行文件的路径。缺省时将自动从系统中寻找。'),
+        headless: Schema.boolean().description('是否开启[无头模式](https://developer.chrome.com/blog/headless-chrome/)。').default(true),
+        args: Schema.array(String)
+          .description('额外的浏览器参数。Chromium 参数可以参考[这个页面](https://peter.sh/experiments/chromium-command-line-switches/)。')
+          .default(process.getuid?.() === 0 ? ['--no-sandbox'] : []),
+      }),
+    ]),
     Schema.object({
-      connect: Schema.intersect([
-        Schema.object({
-          enabled: Schema.boolean().description('是否连接一个现有的浏览器实例，这将忽略本地浏览器连接。').default(false),
-        }),
-        Schema.union([
-          Schema.object({
-            enabled: Schema.const(true).required(),
-            browserURL: Schema.string().description('浏览器的 URL 地址。'),
-            browserWSEndpoint: Schema.string().description('浏览器的 WebSocket 端点。'),
-            headers: Schema.dict(String).role('table').description('远程浏览器的请求头。'),
-          }),
-          Schema.object({}),
-        ]),
-      ]),
       defaultViewport: Schema.object({
         width: Schema.natural().description('默认的视图宽度。').default(1280),
         height: Schema.natural().description('默认的视图高度。').default(768),
