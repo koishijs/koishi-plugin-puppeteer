@@ -56,7 +56,7 @@ class Puppeteer extends Service {
     if (remote) {
       const endpointURL = new URL(endpoint)
       if (['ws:', 'wss:'].includes(endpointURL.protocol)) {
-        if (endpointURL.pathname === '/devtools/browser/') {
+        if (!endpointURL.pathname.startsWith('/devtools/browser/')) {
           throw new Error('invalid browserWSEndpoint for remote debugging')
         }
         options.browserWSEndpoint = endpoint
