@@ -106,7 +106,7 @@ class Puppeteer extends Service {
     if (!this.browser.connected) {
       this.browser = await puppeteer.connect({
         ...this.config,
-        browserWSEndpoint: this.browserWSEndpoint
+        browserWSEndpoint: this.browserWSEndpoint,
       })
       this.ctx.logger.debug('browser reconnect')
     }
