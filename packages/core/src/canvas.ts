@@ -1,5 +1,5 @@
 import CanvasService, { Canvas, CanvasRenderingContext2D, Image } from '@koishijs/canvas'
-import { arrayBufferToBase64, Context } from 'koishi'
+import { Binary, Context } from 'koishi'
 import { Page } from 'puppeteer-core'
 import { resolve } from 'path'
 import { pathToFileURL } from 'url'
@@ -118,11 +118,11 @@ class ImageElement extends BaseElement implements Image {
     }
     if (typeof this.source === 'string') {
       const file = await this.ctx.http.file(this.source)
-      base64 = arrayBufferToBase64(file.data)
+      base64 = Binary.toBase64(file.data)
     } else if (Buffer.isBuffer(this.source)) {
       base64 = this.source.toString('base64')
     } else {
-      base64 = arrayBufferToBase64(this.source)
+      base64 = Binary.toBase64(this.source)
     }
     const size = await this.page.evaluate(`loadImage(${JSON.stringify(this.id)}, ${JSON.stringify(base64)})`) as any
     this.naturalWidth = size.width
@@ -164,7 +164,7 @@ export default class extends CanvasService {
       ].join('\n'))
       return new CanvasElement(this.page, name, width, height)
     } catch (err) {
-      console.log(err)
+      this.ctx.logger('puppeteer').warn(err)
       throw err
     }
   }

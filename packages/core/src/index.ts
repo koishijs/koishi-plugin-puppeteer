@@ -1,6 +1,6 @@
 import puppeteer, { Browser, ElementHandle, Page } from 'puppeteer-core'
 import find from 'puppeteer-finder'
-import {} from 'undios-proxy-agent'
+import {} from '@cordisjs/plugin-proxy-agent'
 import { Context, h, hyphenate, Schema, Service } from 'koishi'
 import { SVG, SVGOptions } from './svg'
 import Canvas from './canvas'

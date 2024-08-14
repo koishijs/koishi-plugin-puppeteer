@@ -1,13 +1,13 @@
 <html>
   <head>
     <script>
-      window.base64ToArrayBuffer = function (base64) {
+      window.base64ToUint8Array = function (base64) {
         const binary = atob(base64.replace(/\\s/g, ''))
         const buffer = new Uint8Array(binary.length)
         for (let i = 0; i < binary.length; i++) {
           buffer[i] = binary.charCodeAt(i)
         }
-        return buffer
+        return buffer.buffer
       }
 
       window.loadImage = function (id, base64) {
@@ -16,7 +16,7 @@
           image.id = id
           image.onload = () => resolve({ width: image.naturalWidth, height: image.naturalHeight })
           image.onerror = reject
-          const blob = new Blob([base64ToArrayBuffer(base64)])
+          const blob = new Blob([base64ToUint8Array(base64)])
           image.src = URL.createObjectURL(blob)
           document.body.appendChild(image)
         })
