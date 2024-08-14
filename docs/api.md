@@ -4,7 +4,7 @@
 
 可以通过 `ctx.puppeteer` 访问。
 
-### broswer
+### browser
 
 - 类型: `Browser`
 
