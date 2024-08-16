@@ -99,8 +99,8 @@ class Puppeteer extends Service {
           const content = children.map(transform).filter(Boolean).join('')
           const lang = attrs.lang ? ` lang="${attrs.lang}"` : ''
           await page.setContent(`<html${lang}>
-            <head>${head.join('')}</head>
-            <body style="${bodyStyle}">${content}</body>
+            <head>${h.unescape(head.join(''))}</head>
+            <body style="${bodyStyle}">${h.unescape(content)}</body>
           </html>`)
         }
         await page.waitForNetworkIdle({
