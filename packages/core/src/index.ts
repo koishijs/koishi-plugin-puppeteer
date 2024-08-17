@@ -1,4 +1,4 @@
-import puppeteer, { Browser, ElementHandle, Page } from 'puppeteer-core'
+import puppeteer, { Browser, ConnectOptions, ElementHandle, Page } from 'puppeteer-core'
 import find from 'puppeteer-finder'
 import {} from '@cordisjs/plugin-proxy-agent'
 import { Context, h, hyphenate, Schema, Service } from 'koishi'
@@ -50,21 +50,36 @@ class Puppeteer extends Service {
   }
 
   async start() {
-    let { executablePath } = this.config
-    if (!executablePath) {
-      this.logger.info('chrome executable found at %c', executablePath = find())
+    const { remote, endpoint, executablePath, headers, headless, args, ...config } = this.config
+    const options = remote ? { headers, ...config } : { executablePath, headless, args, ...config }
+
+    if (remote) {
+      const endpointURL = new URL(endpoint)
+      if (['ws:', 'wss:'].includes(endpointURL.protocol)) {
+        if (!endpointURL.pathname.startsWith('/devtools/browser/')) {
+          throw new Error('invalid browserWSEndpoint for remote debugging')
+        }
+        options.browserWSEndpoint = endpoint
+      } else if (['http:', 'https:'].includes(endpointURL.protocol)) {
+        options.browserURL = endpoint
+      }
+
+      this.browser = await puppeteer.connect(options)
+      this.logger.info('remmote connected to %c', endpoint)
+    } else {
+      this.executable = executablePath || find()
+      if (!executablePath) {
+        this.logger.info('chrome executable found at %c', this.executable)
+      }
+
+      const { proxyAgent } = this.ctx.http.config
+      if (proxyAgent && !args.some(arg => arg.startsWith('--proxy-server'))) {
+        args.push(`--proxy-server=${proxyAgent}`)
+      }
+
+      this.browser = await puppeteer.launch({ ...options, args })
+      this.logger.debug('browser launched')
     }
-    const { proxyAgent } = this.ctx.http.config
-    const args = this.config.args || []
-    if (proxyAgent && !args.some(arg => arg.startsWith('--proxy-server'))) {
-      args.push(`--proxy-server=${proxyAgent}`)
-    }
-    this.browser = await puppeteer.launch({
-      ...this.config,
-      executablePath,
-      args,
-    })
-    this.logger.debug('browser launched')
 
     const transformStyle = (source: {}, base = {}) => {
       return Object.entries({ ...base, ...source }).map(([key, value]) => {
@@ -117,7 +132,11 @@ class Puppeteer extends Service {
   }
 
   async stop() {
-    await this.browser?.close()
+    if (this.config.remote) {
+      await this.browser?.disconnect()
+    } else {
+      await this.browser?.close()
+    }
   }
 
   page = () => this.browser.newPage()
@@ -146,16 +165,30 @@ namespace Puppeteer {
 
   type LaunchOptions = Parameters<typeof puppeteer.launch>[0] & {}
 
-  export interface Config extends LaunchOptions {}
+  export interface Config extends LaunchOptions, ConnectOptions {
+    remote: boolean
+    endpoint: string
+  }
 
   export const Config = Schema.intersect([
     Schema.object({
-      executablePath: Schema.string().description('可执行文件的路径。缺省时将自动从系统中寻找。'),
-      headless: Schema.boolean().description('是否开启[无头模式](https://developer.chrome.com/blog/headless-chrome/)。').default(true),
-      args: Schema.array(String)
-        .description('额外的浏览器参数。Chromium 参数可以参考[这个页面](https://peter.sh/experiments/chromium-command-line-switches/)。')
-        .default(process.getuid?.() === 0 ? ['--no-sandbox'] : []),
-    }).description('启动设置'),
+      remote: Schema.boolean().description('是否连接到远程浏览器。').default(false),
+    }).description('连接设置'),
+    Schema.union([
+      Schema.object({
+        remote: Schema.const(true).required(),
+        endpoint: Schema.string().description('远程浏览器的端点。'),
+        headers: Schema.dict(String).role('table').description('远程浏览器的请求头。'),
+      }),
+      Schema.object({
+        remote: Schema.const(false),
+        executablePath: Schema.string().description('可执行文件的路径。缺省时将自动从系统中寻找。'),
+        headless: Schema.boolean().description('是否开启[无头模式](https://developer.chrome.com/blog/headless-chrome/)。').default(true),
+        args: Schema.array(String)
+          .description('额外的浏览器参数。Chromium 参数可以参考[这个页面](https://peter.sh/experiments/chromium-command-line-switches/)。')
+          .default(process.getuid?.() === 0 ? ['--no-sandbox'] : []),
+      }),
+    ]),
     Schema.object({
       defaultViewport: Schema.object({
         width: Schema.natural().description('默认的视图宽度。').default(1280),
