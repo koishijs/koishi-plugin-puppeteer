@@ -49,11 +49,12 @@
     "koishi": "^4.17.8"
   },
   "devDependencies": {
-    "@types/node": "^20.10.2",
-    "atsc": "^2.0.1",
-    "koishi": "^4.17.8",
-    "typescript": "^5.3.2",
-    "@cordisjs/plugin-proxy-agent": "^0.3.2"
+    "@cordisjs/plugin-http": "^0.6.1",
+    "@cordisjs/plugin-proxy-agent": "^0.3.3",
+    "@types/node": "^22.1.0",
+    "atsc": "^2.1.0",
+    "koishi": "^4.17.11",
+    "typescript": "^5.5.3"
   },
   "dependencies": {
     "@koishijs/canvas": "^0.2.0",
