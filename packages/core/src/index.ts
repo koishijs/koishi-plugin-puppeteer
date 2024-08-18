@@ -15,26 +15,6 @@ declare module 'koishi' {
   }
 }
 
-declare module 'puppeteer-core/lib/types' {
-  interface Base64ScreenshotOptions extends ScreenshotOptions {
-    encoding: 'base64'
-  }
-
-  interface BinaryScreenshotOptions extends ScreenshotOptions {
-    encoding?: 'binary'
-  }
-
-  interface Page {
-    screenshot(options?: Base64ScreenshotOptions): Promise<string>
-    screenshot(options?: BinaryScreenshotOptions): Promise<Buffer>
-  }
-
-  interface ElementHandle {
-    screenshot(options?: Base64ScreenshotOptions): Promise<string>
-    screenshot(options?: BinaryScreenshotOptions): Promise<Buffer>
-  }
-}
-
 type RenderCallback = (page: Page, next: (handle?: ElementHandle) => Promise<string>) => Promise<string>
 
 class Puppeteer extends Service {
@@ -43,6 +23,7 @@ class Puppeteer extends Service {
 
   browser: Browser
   executable: string
+  private browserWSEndpoint: string
 
   constructor(ctx: Context, public config: Puppeteer.Config) {
     super(ctx, 'puppeteer')
@@ -52,7 +33,7 @@ class Puppeteer extends Service {
   async start() {
     let { executablePath } = this.config
     if (!executablePath) {
-      this.logger.info('chrome executable found at %c', executablePath = find())
+      this.ctx.logger.info('chrome executable found at %c', executablePath = find())
     }
     const { proxyAgent } = this.ctx.http.config
     const args = this.config.args || []
@@ -64,7 +45,8 @@ class Puppeteer extends Service {
       executablePath,
       args,
     })
-    this.logger.debug('browser launched')
+    this.ctx.logger.debug('browser launched')
+    this.browserWSEndpoint = this.browser.wsEndpoint()
 
     const transformStyle = (source: {}, base = {}) => {
       return Object.entries({ ...base, ...source }).map(([key, value]) => {
@@ -108,7 +90,7 @@ class Puppeteer extends Service {
         })
         const body = await page.$(attrs.selector || 'body')
         const clip = await body.boundingBox()
-        const screenshot = await page.screenshot({ clip }) as Buffer
+        const screenshot = await page.screenshot({ clip })
         return h.image(screenshot, 'image/png')
       } finally {
         await page?.close()
@@ -120,7 +102,16 @@ class Puppeteer extends Service {
     await this.browser?.close()
   }
 
-  page = () => this.browser.newPage()
+  page = async () => {
+    if (!this.browser.connected) {
+      this.browser = await puppeteer.connect({
+        ...this.config,
+        browserWSEndpoint: this.browserWSEndpoint,
+      })
+      this.ctx.logger.debug('browser reconnect')
+    }
+    return this.browser.newPage()
+  }
 
   svg = (options?: SVGOptions) => new SVG(options)
 
