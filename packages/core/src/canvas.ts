@@ -107,7 +107,13 @@ class ImageElement extends BaseElement implements Image {
   public naturalHeight: number
   public naturalWidth: number
 
-  constructor(private ctx: Context, page: Page, id: string, private source: string | URL | Buffer | ArrayBufferLike) {
+  constructor(
+    private ctx: Context,
+    page: Page,
+    id: string,
+    private source: string | URL | Buffer | ArrayBufferLike,
+    private type?: string,
+  ) {
     super(page, id)
   }
 
@@ -124,7 +130,7 @@ class ImageElement extends BaseElement implements Image {
     } else {
       base64 = Binary.toBase64(this.source)
     }
-    const size = await this.page.evaluate(`loadImage(${JSON.stringify(this.id)}, ${JSON.stringify(base64)})`) as any
+    const size = await this.page.evaluate(`loadImage(${JSON.stringify(this.id)}, ${JSON.stringify(base64)}, ${JSON.stringify(this.type)})`) as any
     this.naturalWidth = size.width
     this.naturalHeight = size.height
   }
@@ -169,9 +175,9 @@ export default class extends CanvasService {
     }
   }
 
-  async loadImage(source: string | URL | Buffer | ArrayBufferLike): Promise<Image> {
+  async loadImage(source: string | URL | Buffer | ArrayBufferLike, type?: string): Promise<Image> {
     const id = `image_${++this.counter}`
-    const image = new ImageElement(this.ctx, this.page, id, source)
+    const image = new ImageElement(this.ctx, this.page, id, source, type)
     await image.initialize()
     return image
   }
