@@ -24,7 +24,7 @@ function findChromes() {
  * if no executable chrome find, ERROR_NO_INSTALLATIONS_FOUND will be throw
  * if platform is not one if `win32`, `darwin`, `linux`, `android`, ERROR_PLATFORM_NOT_SUPPORT will be throw
  */
-export = function findChrome() {
+export default function findChrome() {
   const installations = findChromes()
   if (installations.length) {
     return installations[0]

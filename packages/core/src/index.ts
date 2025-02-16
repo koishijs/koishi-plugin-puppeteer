@@ -15,7 +15,7 @@ declare module 'koishi' {
   }
 }
 
-declare module 'puppeteer-core/lib/types' {
+declare module 'puppeteer-core' {
   interface Base64ScreenshotOptions extends ScreenshotOptions {
     encoding: 'base64'
   }
@@ -50,9 +50,9 @@ class Puppeteer extends Service {
   }
 
   async start() {
-    let { executablePath } = this.config
-    if (!executablePath) {
-      this.logger.info('chrome executable found at %c', executablePath = find())
+    let { executablePath, product } = this.config
+    if (!executablePath && (!product || product === 'chrome')) {
+      this.ctx.logger.info('browser executable found at %c', executablePath = find())
     }
     const { proxyAgent } = this.ctx.http.config
     const args = this.config.args || []
@@ -63,8 +63,9 @@ class Puppeteer extends Service {
       ...this.config,
       executablePath,
       args,
+      product,
     })
-    this.logger.debug('browser launched')
+    this.ctx.logger.debug(`${product || 'chrome'} browser launched`)
 
     const transformStyle = (source: {}, base = {}) => {
       return Object.entries({ ...base, ...source }).map(([key, value]) => {
@@ -72,7 +73,7 @@ class Puppeteer extends Service {
       }).join('; ')
     }
 
-    this.ctx.component('html', async (attrs, children, session) => {
+    this.ctx.component('html', async (attrs, children, _session) => {
       const head: h[] = []
 
       const transform = (element: h) => {
@@ -146,11 +147,14 @@ namespace Puppeteer {
 
   type LaunchOptions = Parameters<typeof puppeteer.launch>[0] & {}
 
-  export interface Config extends LaunchOptions {}
+  export interface Config extends LaunchOptions {
+    product?: 'chrome' | 'firefox'
+  }
 
   export const Config = Schema.intersect([
     Schema.object({
       executablePath: Schema.string().description('可执行文件的路径。缺省时将自动从系统中寻找。'),
+      product: Schema.union(['chrome', 'firefox']).description('浏览器类型，支持 Chrome 和 Firefox。').default('chrome'),
       headless: Schema.boolean().description('是否开启[无头模式](https://developer.chrome.com/blog/headless-chrome/)。').default(true),
       args: Schema.array(String)
         .description('额外的浏览器参数。Chromium 参数可以参考[这个页面](https://peter.sh/experiments/chromium-command-line-switches/)。')
