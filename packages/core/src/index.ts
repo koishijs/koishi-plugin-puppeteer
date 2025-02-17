@@ -50,10 +50,17 @@ class Puppeteer extends Service {
   }
 
   async start() {
-    let { executablePath, product } = this.config
-    if (!executablePath && (!product || product === 'chrome')) {
-      this.ctx.logger.info('browser executable found at %c', executablePath = find())
+    const { product } = this.config
+    let { executablePath } = this.config
+    if (!executablePath) {
+      try {
+        executablePath = find()
+        this.ctx.logger.info('browser executable found at %c', executablePath)
+      } catch (err) {
+        this.ctx.logger.warn('failed to find browser executable:', err)
+      }
     }
+
     const { proxyAgent } = this.ctx.http.config
     const args = this.config.args || []
     if (proxyAgent && !args.some(arg => arg.startsWith('--proxy-server'))) {

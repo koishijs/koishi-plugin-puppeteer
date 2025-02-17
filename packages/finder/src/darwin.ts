@@ -1,65 +1,141 @@
-import { execSync } from 'child_process'
-import { join } from 'path'
-import { canAccess, newLineRegex, sort } from './utils'
-
-const suffixes = [
-  '/Contents/MacOS/Google Chrome Canary',
-  '/Contents/MacOS/Google Chrome Dev',
-  '/Contents/MacOS/Google Chrome',
-  '/Contents/MacOS/Chromium',
-  '/Contents/MacOS/Microsoft Edge Canary',
-  '/Contents/MacOS/Microsoft Edge Dev',
-  '/Contents/MacOS/Microsoft Edge',
-]
+import { execSync } from "child_process";
+import { join } from "path";
+import { canAccess, newLineRegex, sort } from "./utils";
 
 const LSREGISTER =
-  '/System/Library/Frameworks/CoreServices.framework' +
-  '/Versions/A/Frameworks/LaunchServices.framework' +
-  '/Versions/A/Support/lsregister'
+  "/System/Library/Frameworks/CoreServices.framework" +
+  "/Versions/A/Frameworks/LaunchServices.framework" +
+  "/Versions/A/Support/lsregister";
 
-export default function darwin() {
-  const installations = []
+function getSuffixesForProduct(product: "chrome" | "firefox") {
+  return product === "firefox"
+    ? [
+        "/Contents/MacOS/Firefox",
+        "/Contents/MacOS/Firefox Developer Edition",
+        "/Contents/MacOS/Firefox Nightly",
+      ]
+    : [
+        "/Contents/MacOS/Google Chrome Canary",
+        "/Contents/MacOS/Google Chrome Dev",
+        "/Contents/MacOS/Google Chrome",
+        "/Contents/MacOS/Chromium",
+        "/Contents/MacOS/Microsoft Edge Canary",
+        "/Contents/MacOS/Microsoft Edge Dev",
+        "/Contents/MacOS/Microsoft Edge",
+      ];
+}
 
-  execSync([
-    `${LSREGISTER} -dump`,
-    `grep -E -i -o '/.+(((google chrome)|(microsoft edge))( (dev|canary))?|chromium)\\.app(\\s|$)'`,
-    `grep -E -v 'Caches|TimeMachine|Temporary|/Volumes|\\.Trash'`,
-  ].join(' | '))
+function getPrioritiesForProduct(product: "chrome" | "firefox") {
+  return product === "firefox"
+    ? [
+        {
+          regex: new RegExp(`^${process.env.HOME}/Applications/.*Firefox.app`),
+          weight: 45,
+        },
+        {
+          regex: new RegExp(
+            `^${process.env.HOME}/Applications/.*Firefox Developer Edition.app`,
+          ),
+          weight: 44,
+        },
+        {
+          regex: new RegExp(
+            `^${process.env.HOME}/Applications/.*Firefox Nightly.app`,
+          ),
+          weight: 43,
+        },
+        { regex: /^\/Applications\/.*Firefox.app/, weight: 95 },
+        {
+          regex: /^\/Applications\/.*Firefox Developer Edition.app/,
+          weight: 94,
+        },
+        { regex: /^\/Applications\/.*Firefox Nightly.app/, weight: 93 },
+        { regex: /^\/Volumes\/.*Firefox.app/, weight: -7 },
+        { regex: /^\/Volumes\/.*Firefox Developer Edition.app/, weight: -8 },
+        { regex: /^\/Volumes\/.*Firefox Nightly.app/, weight: -9 },
+      ]
+    : [
+        {
+          regex: new RegExp(
+            `^${process.env.HOME}/Applications/.*Microsoft Edge.app`,
+          ),
+          weight: 46,
+        },
+        {
+          regex: new RegExp(
+            `^${process.env.HOME}/Applications/.*Microsoft Edge Dev.app`,
+          ),
+          weight: 47,
+        },
+        {
+          regex: new RegExp(
+            `^${process.env.HOME}/Applications/.*Microsoft Edge Canary.app`,
+          ),
+          weight: 48,
+        },
+        {
+          regex: new RegExp(`^${process.env.HOME}/Applications/.*Chromium.app`),
+          weight: 49,
+        },
+        {
+          regex: new RegExp(`^${process.env.HOME}/Applications/.*Chrome.app`),
+          weight: 50,
+        },
+        {
+          regex: new RegExp(
+            `^${process.env.HOME}/Applications/.*Chrome Dev.app`,
+          ),
+          weight: 51,
+        },
+        {
+          regex: new RegExp(
+            `^${process.env.HOME}/Applications/.*Chrome Canary.app`,
+          ),
+          weight: 52,
+        },
+        { regex: /^\/Applications\/.*Microsoft Edge.app/, weight: 96 },
+        { regex: /^\/Applications\/.*Microsoft Edge Dev.app/, weight: 97 },
+        { regex: /^\/Applications\/.*Microsoft Edge Canary.app/, weight: 98 },
+        { regex: /^\/Applications\/.*Chromium.app/, weight: 99 },
+        { regex: /^\/Applications\/.*Chrome.app/, weight: 100 },
+        { regex: /^\/Applications\/.*Chrome Dev.app/, weight: 101 },
+        { regex: /^\/Applications\/.*Chrome Canary.app/, weight: 102 },
+        { regex: /^\/Volumes\/.*Microsoft Edge.app/, weight: -6 },
+        { regex: /^\/Volumes\/.*Microsoft Edge Dev.app/, weight: -5 },
+        { regex: /^\/Volumes\/.*Microsoft Edge Canary.app/, weight: -4 },
+        { regex: /^\/Volumes\/.*Chromium.app/, weight: -3 },
+        { regex: /^\/Volumes\/.*Chrome.app/, weight: -2 },
+        { regex: /^\/Volumes\/.*Chrome Dev.app/, weight: -1 },
+        { regex: /^\/Volumes\/.*Chrome Canary.app/, weight: 0 },
+      ];
+}
+
+export default function darwin(product: "chrome" | "firefox" = "chrome") {
+  const installations = [];
+  const suffixes = getSuffixesForProduct(product);
+  const searchPattern =
+    product === "firefox"
+      ? "firefox( (developer edition|nightly))?"
+      : "((google chrome)|(microsoft edge))( (dev|canary))?|chromium";
+
+  execSync(
+    [
+      `${LSREGISTER} -dump`,
+      `grep -E -i -o '/.+(${searchPattern})\\.app(\\s|$)'`,
+      `grep -E -v 'Caches|TimeMachine|Temporary|/Volumes|\\.Trash'`,
+    ].join(" | "),
+  )
     .toString()
     .split(newLineRegex)
     .forEach((inst) => {
-      suffixes.forEach(suffix => {
-        const execPath = join(inst.trim(), suffix)
+      suffixes.forEach((suffix) => {
+        const execPath = join(inst.trim(), suffix);
         if (canAccess(execPath)) {
-          installations.push(execPath)
+          installations.push(execPath);
         }
-      })
-    })
+      });
+    });
 
-  // Retains one per line to maintain readability.
-  const priorities = [
-    { regex: new RegExp(`^${process.env.HOME}/Applications/.*Microsoft Edge.app`), weight: 46 },
-    { regex: new RegExp(`^${process.env.HOME}/Applications/.*Microsoft Edge Dev.app`), weight: 47 },
-    { regex: new RegExp(`^${process.env.HOME}/Applications/.*Microsoft Edge Canary.app`), weight: 48 },
-    { regex: new RegExp(`^${process.env.HOME}/Applications/.*Chromium.app`), weight: 49 },
-    { regex: new RegExp(`^${process.env.HOME}/Applications/.*Chrome.app`), weight: 50 },
-    { regex: new RegExp(`^${process.env.HOME}/Applications/.*Chrome Dev.app`), weight: 51 },
-    { regex: new RegExp(`^${process.env.HOME}/Applications/.*Chrome Canary.app`), weight: 52 },
-    { regex: /^\/Applications\/.*Microsoft Edge.app/, weight: 96 },
-    { regex: /^\/Applications\/.*Microsoft Edge Dev.app/, weight: 97 },
-    { regex: /^\/Applications\/.*Microsoft Edge Canary.app/, weight: 98 },
-    { regex: /^\/Applications\/.*Chromium.app/, weight: 99 },
-    { regex: /^\/Applications\/.*Chrome.app/, weight: 100 },
-    { regex: /^\/Applications\/.*Chrome Dev.app/, weight: 101 },
-    { regex: /^\/Applications\/.*Chrome Canary.app/, weight: 102 },
-    { regex: /^\/Volumes\/.*Microsoft Edge.app/, weight: -6 },
-    { regex: /^\/Volumes\/.*Microsoft Edge Dev.app/, weight: -5 },
-    { regex: /^\/Volumes\/.*Microsoft Edge Canary.app/, weight: -4 },
-    { regex: /^\/Volumes\/.*Chromium.app/, weight: -3 },
-    { regex: /^\/Volumes\/.*Chrome.app/, weight: -2 },
-    { regex: /^\/Volumes\/.*Chrome Dev.app/, weight: -1 },
-    { regex: /^\/Volumes\/.*Chrome Canary.app/, weight: 0 },
-  ]
-
-  return sort(installations, priorities)
+  const priorities = getPrioritiesForProduct(product);
+  return sort(installations, priorities);
 }
