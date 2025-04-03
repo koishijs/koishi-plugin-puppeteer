@@ -4,6 +4,8 @@ import { Page } from 'puppeteer-core'
 import { resolve } from 'path'
 import { pathToFileURL } from 'url'
 
+import type {} from 'koishi-plugin-fonts'
+
 const kElement = Symbol('element')
 
 class BaseElement {
@@ -131,7 +133,7 @@ class ImageElement extends BaseElement implements Image {
 }
 
 export default class extends CanvasService {
-  static inject = ['puppeteer', 'http']
+  static inject = ['puppeteer', 'http', 'fonts']
 
   private page: Page
   private counter = 0
@@ -152,9 +154,26 @@ export default class extends CanvasService {
     this.page = null
   }
 
-  async createCanvas(width: number, height: number) {
+  async createCanvas(width: number, height: number, families?: string[]) {
+    const fontFaceSet = []
     try {
       const name = `canvas_${++this.counter}`
+      if (families?.length) {
+        const fonts = await this.ctx.fonts.get(families)
+        for (const font of fonts) {
+          await this.page.evaluate((font) => {
+            const fontFace = new FontFace(
+              font.family,
+              `url(${font.path}) format('${font.format}')`,
+              font.descriptors,
+            )
+            document.fonts.add(fontFace)
+            fontFaceSet.push(fontFace)
+            return fontFace.load()
+          }, font)
+        }
+      }
+
       await this.page.evaluate([
         `const ${name} = document.createElement('canvas');`,
         `${name}.width = ${width};`,
@@ -166,6 +185,14 @@ export default class extends CanvasService {
     } catch (err) {
       this.ctx.logger('puppeteer').warn(err)
       throw err
+    } finally {
+      if (families?.length) {
+        for (const fontFace of fontFaceSet) {
+          await this.page.evaluate((fontFace) => {
+            document.fonts.delete(fontFace)
+          }, fontFace)
+        }
+      }
     }
   }
 

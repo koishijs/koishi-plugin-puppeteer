@@ -156,9 +156,15 @@ class Puppeteer extends Service {
 
   svg = (options?: SVGOptions) => new SVG(options)
 
-  render = async (content: string, callback?: RenderCallback) => {
-    const page = await this.page()
-    await page.goto(pathToFileURL(resolve(__dirname, '../index.html')).href)
+  render = async (content: string, families?: string[], callback?: RenderCallback) => {
+    let page
+    const url = resolve(__dirname, '../index.html')
+    if (!families?.length) {
+      page = await this.page()
+      await page.goto(pathToFileURL(url).href)
+    } else {
+      page = await this.pageWithFonts(families, url)
+    }
     if (content) await page.setContent(content)
 
     callback ||= async (_, next) => page.$('body').then(next)
