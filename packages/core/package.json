@@ -26,6 +26,9 @@
       "zh": "浏览器服务"
     },
     "service": {
+      "required": [
+        "fonts"
+      ],
       "implements": [
         "puppeteer",
         "canvas",

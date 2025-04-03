@@ -1,4 +1,4 @@
-import puppeteer, { Browser, ElementHandle, Page } from 'puppeteer-core'
+import puppeteer, { Browser, ElementHandle, GoToOptions, Page } from 'puppeteer-core'
 import find from 'puppeteer-finder'
 import { Context, h, hyphenate, Schema, Service } from 'koishi'
 import { SVG, SVGOptions } from './svg'
@@ -8,6 +8,7 @@ import { pathToFileURL } from 'url'
 
 import type {} from '@cordisjs/plugin-proxy-agent'
 import type {} from '@cordisjs/plugin-http'
+import type {} from 'koishi-plugin-fonts'
 
 export * from './svg'
 
@@ -41,7 +42,7 @@ type RenderCallback = (page: Page, next: (handle?: ElementHandle) => Promise<str
 
 class Puppeteer extends Service {
   static [Service.provide] = 'puppeteer'
-  static inject = ['http']
+  static inject = ['http', 'fonts']
 
   browser: Browser
   executable: string
@@ -123,6 +124,35 @@ class Puppeteer extends Service {
   }
 
   page = () => this.browser.newPage()
+
+  pageWithFonts = async (
+    families: string[],
+    url: string,
+    gotoOptions?: GoToOptions,
+    beforeGotoPage?: (page: Page) => Promise<void>,
+  ) => {
+    const fonts = await this.ctx.fonts.get(families)
+    const page = await this.browser.newPage()
+
+    if (beforeGotoPage) {
+      await beforeGotoPage(page)
+    }
+
+    await page.goto(`${pathToFileURL(url)}`, gotoOptions)
+
+    for (const font of fonts) {
+      await page.evaluate((font) => {
+        const fontFace = new FontFace(
+          font.family,
+          `url(${font.path}) format('${font.format}')`,
+          font.descriptors,
+        )
+        document.fonts.add(fontFace)
+        return fontFace.load()
+      }, font)
+    }
+    return page
+  }
 
   svg = (options?: SVGOptions) => new SVG(options)
 
