@@ -1,11 +1,13 @@
 import puppeteer, { Browser, ElementHandle, Page } from 'puppeteer-core'
 import find from 'puppeteer-finder'
-import {} from '@cordisjs/plugin-proxy-agent'
 import { Context, h, hyphenate, Schema, Service } from 'koishi'
 import { SVG, SVGOptions } from './svg'
 import Canvas from './canvas'
 import { resolve } from 'path'
 import { pathToFileURL } from 'url'
+
+import type {} from '@cordisjs/plugin-proxy-agent'
+import type {} from '@cordisjs/plugin-http'
 
 export * from './svg'
 
@@ -15,7 +17,7 @@ declare module 'koishi' {
   }
 }
 
-declare module 'puppeteer-core/lib/types' {
+declare module 'puppeteer-core' {
   interface Base64ScreenshotOptions extends ScreenshotOptions {
     encoding: 'base64'
   }
@@ -52,7 +54,7 @@ class Puppeteer extends Service {
   async start() {
     let { executablePath } = this.config
     if (!executablePath) {
-      this.logger.info('chrome executable found at %c', executablePath = find())
+      this.ctx.logger.info('chrome executable found at %c', executablePath = find())
     }
     const { proxyAgent } = this.ctx.http.config
     const args = this.config.args || []
@@ -64,7 +66,7 @@ class Puppeteer extends Service {
       executablePath,
       args,
     })
-    this.logger.debug('browser launched')
+    this.ctx.logger.debug('browser launched')
 
     const transformStyle = (source: {}, base = {}) => {
       return Object.entries({ ...base, ...source }).map(([key, value]) => {

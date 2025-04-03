@@ -1,11 +1,22 @@
-- name: yakumo
+- id: p6ay2f
+  name: yakumo
   config:
+    require:
+      - esbuild-register
+      - yakumo-esbuild
+      - yakumo-mocha
+      - yakumo-tsc
     pipeline:
       build:
         - tsc
         - esbuild
       clean:
         - tsc --clean
-- name: yakumo-esbuild
-- name: yakumo-mocha
-- name: yakumo-tsc
+- id: g2e9rn
+  name: yakumo-esbuild
+- id: 1ewxs6
+  name: yakumo-mocha
+- id: 5fhw8k
+  name: yakumo-tsc
+- id: lpk05x
+  name: yakumo/run
