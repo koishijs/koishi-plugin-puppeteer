@@ -1,5 +1,5 @@
 import CanvasService, { Canvas, CanvasRenderingContext2D, Image } from '@koishijs/canvas'
-import { Binary, Context } from 'koishi'
+import { type Awaitable, Binary, Context, h } from 'koishi'
 import { Page } from 'puppeteer-core'
 import { resolve } from 'path'
 import { pathToFileURL } from 'url'
@@ -193,6 +193,17 @@ export default class extends CanvasService {
           }, fontFace)
         }
       }
+    }
+  }
+
+  async render(width: number, height: number, callback: (ctx: CanvasRenderingContext2D) => Awaitable<void>, families?: string[]) {
+    const canvas = await this.createCanvas(width, height, families)
+    try {
+      await callback(canvas.getContext('2d'))
+      const buffer = await canvas.toBuffer('image/png')
+      return h.image(buffer, 'image/png')
+    } finally {
+      await canvas.dispose()
     }
   }
 
