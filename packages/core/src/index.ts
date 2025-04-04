@@ -167,6 +167,17 @@ class Puppeteer extends Service {
     }
     if (content) await page.setContent(content)
 
+    if (families?.length) {
+      await page.evaluate((families) => {
+        const style = document.createElement('style')
+        style.textContent = `
+      * {
+        font-family: ${families.map((f) => `'${f}'`).join(', ')};
+      }`
+        document.head.appendChild(style)
+      }, families)
+    }
+
     callback ||= async (_, next) => page.$('body').then(next)
     const output = await callback(page, async (handle) => {
       const clip = handle ? await handle.boundingBox() : null
