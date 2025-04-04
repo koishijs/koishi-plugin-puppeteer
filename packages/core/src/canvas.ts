@@ -161,7 +161,7 @@ export default class extends CanvasService {
       if (families?.length) {
         const fonts = await this.ctx.fonts.get(families)
         for (const font of fonts) {
-          await this.page.evaluate((font) => {
+          await this.page.evaluate((font, fontFaceSet) => {
             const fontFace = new FontFace(
               font.family,
               `url(${font.path}) format('${font.format}')`,
@@ -170,7 +170,7 @@ export default class extends CanvasService {
             document.fonts.add(fontFace)
             fontFaceSet.push(fontFace)
             return fontFace.load()
-          }, font)
+          }, font, fontFaceSet)
         }
       }
 
