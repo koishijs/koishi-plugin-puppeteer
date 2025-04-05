@@ -140,7 +140,7 @@ class Puppeteer extends Service {
 
     await page.goto(`${pathToFileURL(url)}`, gotoOptions)
 
-    for (const font of fonts) {
+    await Promise.all(fonts.map(async (font) => {
       await page.evaluate((font) => {
         const fontFace = new FontFace(
           font.family,
@@ -150,7 +150,8 @@ class Puppeteer extends Service {
         document.fonts.add(fontFace)
         return fontFace.load()
       }, font)
-    }
+    }))
+
     return page
   }
 
