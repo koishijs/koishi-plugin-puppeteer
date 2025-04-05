@@ -25,6 +25,9 @@ class BaseElement {
 
 class CanvasElement extends BaseElement implements Canvas {
   private stmts: string[] = []
+
+  private fontFaceSet: FontFace[]
+
   private ctx = new Proxy({
     canvas: this,
     direction: 'inherit',
@@ -77,8 +80,9 @@ class CanvasElement extends BaseElement implements Canvas {
     },
   })
 
-  constructor(page: Page, id: string, public width: number, public height: number) {
+  constructor(page: Page, id: string, public width: number, public height: number, fontFaceSet: FontFace[] = []) {
     super(page, id)
+    this.fontFaceSet = fontFaceSet
   }
 
   getContext(type: '2d') {
@@ -102,6 +106,15 @@ class CanvasElement extends BaseElement implements Canvas {
   async toBuffer(type: 'image/png') {
     const url = await this.toDataURL(type)
     return Buffer.from(url.slice(url.indexOf(',') + 1), 'base64')
+  }
+
+  async dispose() {
+    await super.dispose()
+    await Promise.all(this.fontFaceSet.map(async (fontFace) => {
+      await this.page.evaluate((fontFace) => {
+        document.fonts.delete(fontFace)
+      }, fontFace)
+    }))
   }
 }
 
@@ -160,7 +173,7 @@ export default class extends CanvasService {
       const name = `canvas_${++this.counter}`
       if (families?.length) {
         const fonts = await this.ctx.fonts.get(families)
-        for (const font of fonts) {
+        await Promise.all(fonts.map(async (font) => {
           await this.page.evaluate((font, fontFaceSet) => {
             const fontFace = new FontFace(
               font.family,
@@ -171,7 +184,7 @@ export default class extends CanvasService {
             fontFaceSet.push(fontFace)
             return fontFace.load()
           }, font, fontFaceSet)
-        }
+        }))
       }
 
       await this.page.evaluate([
@@ -181,18 +194,10 @@ export default class extends CanvasService {
         `${name}.id = ${JSON.stringify(name)};`,
         `document.body.appendChild(${name});`,
       ].join('\n'))
-      return new CanvasElement(this.page, name, width, height)
+      return new CanvasElement(this.page, name, width, height, fontFaceSet)
     } catch (err) {
       this.ctx.logger('puppeteer').warn(err)
       throw err
-    } finally {
-      if (families?.length) {
-        for (const fontFace of fontFaceSet) {
-          await this.page.evaluate((fontFace) => {
-            document.fonts.delete(fontFace)
-          }, fontFace)
-        }
-      }
     }
   }
 
