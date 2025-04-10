@@ -128,6 +128,7 @@ class Puppeteer extends Service {
   pageWithFonts = async (
     families: string[],
     url: string,
+    content?: string,
     gotoOptions?: GoToOptions,
     beforeGotoPage?: (page: Page) => Promise<void>,
   ) => {
@@ -139,18 +140,23 @@ class Puppeteer extends Service {
     }
 
     await page.goto(`${pathToFileURL(url)}`, gotoOptions)
+    if (content) await page.setContent(content)
 
     await Promise.all(fonts.map(async (font) => {
-      await page.evaluate((font) => {
-        const fontFace = new FontFace(
-          font.family,
-          `url(${font.path}) format('${font.format}')`,
-          font.descriptors,
-        )
-        document.fonts.add(fontFace)
-        return fontFace.load()
-      }, font)
+      if (font.format === 'google') {
+        await page.addStyleTag({ content: `@import url('${font.path}')` })
+      } else {
+        await page.evaluate((font) => {
+          const fontFace = new FontFace(
+            font.family,
+            `url(${font.path}) format('${font.format}')`,
+            font.descriptors,
+          )
+          document.fonts.add(fontFace)
+        }, font)
+      }
     }))
+    await page.addStyleTag({ content: `* {font-family: ${families.map((f) => `'${f}'`).join(', ')};}` })
 
     return page
   }
@@ -163,20 +169,9 @@ class Puppeteer extends Service {
     if (!families?.length) {
       page = await this.page()
       await page.goto(pathToFileURL(url).href)
+      if (content) await page.setContent(content)
     } else {
-      page = await this.pageWithFonts(families, url)
-    }
-    if (content) await page.setContent(content)
-
-    if (families?.length) {
-      await page.evaluate((families) => {
-        const style = document.createElement('style')
-        style.textContent = `
-      * {
-        font-family: ${families.map((f) => `'${f}'`).join(', ')};
-      }`
-        document.head.appendChild(style)
-      }, families)
+      page = await this.pageWithFonts(families, url, content)
     }
 
     callback ||= async (_, next) => page.$('body').then(next)

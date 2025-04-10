@@ -167,24 +167,41 @@ export default class extends CanvasService {
     this.page = null
   }
 
-  async createCanvas(width: number, height: number, families?: string[]) {
+  async createCanvas(
+    width: number,
+    height: number,
+    families?: string[],
+    text?: string,
+  ) {
     const fontFaceSet = []
     try {
       const name = `canvas_${++this.counter}`
       if (families?.length) {
         const fonts = await this.ctx.fonts.get(families)
         await Promise.all(fonts.map(async (font) => {
-          await this.page.evaluate((font, fontFaceSet) => {
-            const fontFace = new FontFace(
-              font.family,
-              `url(${font.path}) format('${font.format}')`,
-              font.descriptors,
-            )
-            document.fonts.add(fontFace)
-            fontFaceSet.push(fontFace)
-            return fontFace.load()
-          }, font, fontFaceSet)
+          if (font.format === 'google') {
+            await this.page.addStyleTag({ content: `@import url('${font.path}')` })
+          } else {
+            await this.page.evaluate((font, fontFaceSet) => {
+              const fontFace = new FontFace(
+                font.family,
+                `url(${font.path}) format('${font.format}')`,
+                font.descriptors,
+              )
+              document.fonts.add(fontFace)
+              fontFaceSet.push(fontFace)
+            }, font, fontFaceSet)
+          }
         }))
+
+        if (text) {
+          await this.page.evaluate(async (text, families) => {
+            await document.fonts.load(
+              `1px ${families.join(',')}`,
+              text,
+            )
+          }, text, families)
+        }
       }
 
       await this.page.evaluate([
@@ -201,8 +218,14 @@ export default class extends CanvasService {
     }
   }
 
-  async render(width: number, height: number, callback: (ctx: CanvasRenderingContext2D) => Awaitable<void>, families?: string[]) {
-    const canvas = await this.createCanvas(width, height, families)
+  async render(
+    width: number,
+    height: number,
+    callback: (ctx: CanvasRenderingContext2D) => Awaitable<void>,
+    families?: string[],
+    text?: string,
+  ) {
+    const canvas = await this.createCanvas(width, height, families, text)
     try {
       await callback(canvas.getContext('2d'))
       const buffer = await canvas.toBuffer('image/png')
