@@ -156,7 +156,6 @@ class Puppeteer extends Service {
         }, font)
       }
     }))
-    await page.addStyleTag({ content: `* {font-family: ${families.map((f) => `'${f}'`).join(', ')};}` })
 
     return page
   }
@@ -172,6 +171,7 @@ class Puppeteer extends Service {
       if (content) await page.setContent(content)
     } else {
       page = await this.pageWithFonts(families, url, content)
+      await page.addStyleTag({ content: `* {font-family: ${families.map((f) => `'${f}'`).join(', ')};}` })
     }
 
     callback ||= async (_, next) => page.$('body').then(next)
