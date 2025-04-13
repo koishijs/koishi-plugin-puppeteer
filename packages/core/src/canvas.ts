@@ -238,13 +238,21 @@ export default class extends CanvasService {
     families?: string[],
     text?: string,
   ) {
-    const canvas = await this.createCanvas(width, height, families, text)
+    let canvas: CanvasElement
     try {
+      canvas = await this.createCanvas(width, height, families, text)
       await callback(canvas.getContext('2d'))
       const buffer = await canvas.toBuffer('image/png')
       return h.image(buffer, 'image/png')
+    } catch (err) {
+      this.ctx.logger('puppeteer').warn(err)
+      throw err
     } finally {
-      await canvas.dispose()
+      try {
+        await canvas.dispose()
+      } catch (err) {
+        this.ctx.logger('puppeteer').warn(err)
+      }
     }
   }
 
