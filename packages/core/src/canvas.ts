@@ -1,6 +1,6 @@
 import CanvasService, { Canvas, CanvasRenderingContext2D, Image } from '@koishijs/canvas'
 import { type Awaitable, Binary, Context, h } from 'koishi'
-import { Page } from 'puppeteer-core'
+import { type ElementHandle, Page } from 'puppeteer-core'
 import { resolve } from 'path'
 import { pathToFileURL } from 'url'
 
@@ -25,8 +25,6 @@ class BaseElement {
 
 class CanvasElement extends BaseElement implements Canvas {
   private stmts: string[] = []
-
-  private fontFaceSet: FontFace[]
 
   private ctx = new Proxy({
     canvas: this,
@@ -80,9 +78,15 @@ class CanvasElement extends BaseElement implements Canvas {
     },
   })
 
-  constructor(page: Page, id: string, public width: number, public height: number, fontFaceSet: FontFace[] = []) {
+  constructor(
+    page: Page,
+    id: string,
+    public width: number,
+    public height: number,
+    private fontFaceSet: FontFace[] = [],
+    private styleHandles: ElementHandle<Element>[] = [],
+  ) {
     super(page, id)
-    this.fontFaceSet = fontFaceSet
   }
 
   getContext(type: '2d') {
@@ -114,6 +118,12 @@ class CanvasElement extends BaseElement implements Canvas {
       await this.page.evaluate((fontFace) => {
         document.fonts.delete(fontFace)
       }, fontFace)
+    }))
+    await Promise.all(this.styleHandles.map(async (handle) => {
+      try {
+        await handle.evaluate(node => node.remove())
+        await handle.dispose()
+      } catch (e) {}
     }))
   }
 }
@@ -174,13 +184,16 @@ export default class extends CanvasService {
     text?: string,
   ) {
     const fontFaceSet = []
+    const styleHandles = []
+
     try {
       const name = `canvas_${++this.counter}`
       if (families?.length) {
         const fonts = await this.ctx.fonts.get(families)
-        await Promise.all(fonts.map(async (font) => {
+        await Promise.all(fonts.map(async (font, index) => {
           if (font.format === 'google') {
-            await this.page.addStyleTag({ content: `@import url('${font.path}')` })
+            const style = await this.page.addStyleTag({ url: font.path })
+            styleHandles.push(style)
           } else {
             await this.page.evaluate((font, fontFaceSet) => {
               const fontFace = new FontFace(
@@ -211,7 +224,7 @@ export default class extends CanvasService {
         `${name}.id = ${JSON.stringify(name)};`,
         `document.body.appendChild(${name});`,
       ].join('\n'))
-      return new CanvasElement(this.page, name, width, height, fontFaceSet)
+      return new CanvasElement(this.page, name, width, height, fontFaceSet, styleHandles)
     } catch (err) {
       this.ctx.logger('puppeteer').warn(err)
       throw err
