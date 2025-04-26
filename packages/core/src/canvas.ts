@@ -180,16 +180,18 @@ export default class extends CanvasService {
   async createCanvas(
     width: number,
     height: number,
-    families?: string[],
-    text?: string,
+    options?: {
+      families: string[]
+      text?: string
+    },
   ) {
     const fontFaceSet = []
     const styleHandles = []
 
     try {
       const name = `canvas_${++this.counter}`
-      if (families?.length) {
-        const fonts = await this.ctx.fonts.get(families)
+      if (options && options.families.length) {
+        const fonts = await this.ctx.fonts.get(options.families)
         await Promise.all(fonts.map(async (font, index) => {
           if (font.format === 'google') {
             const style = await this.page.addStyleTag({ url: font.path })
@@ -207,13 +209,13 @@ export default class extends CanvasService {
           }
         }))
 
-        if (text) {
+        if (options?.text) {
           await this.page.evaluate(async (text, families) => {
             await document.fonts.load(
               `1px ${families.join(',')}`,
               text,
             )
-          }, text, families)
+          }, options.text, options.families)
         }
       }
 
@@ -235,12 +237,14 @@ export default class extends CanvasService {
     width: number,
     height: number,
     callback: (ctx: CanvasRenderingContext2D) => Awaitable<void>,
-    families?: string[],
-    text?: string,
+    options?: {
+      families: string[]
+      text?: string
+    },
   ) {
     let canvas: CanvasElement
     try {
-      canvas = await this.createCanvas(width, height, families, text)
+      canvas = await this.createCanvas(width, height, options)
       await callback(canvas.getContext('2d'))
       const buffer = await canvas.toBuffer('image/png')
       return h.image(buffer, 'image/png')
