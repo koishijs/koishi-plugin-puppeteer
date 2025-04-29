@@ -21,6 +21,16 @@
           document.body.appendChild(image)
         })
       }
+
+      window.loadFont = function (id, base64) {
+        return new Promise((resolve, reject) => {
+          const font = new FontFace(id, base64ToUint8Array(base64))
+          font.load().then(() => {
+            document.fonts.add(font)
+            resolve()
+          }).catch(err => reject(err))
+        })
+      }
     </script>
   </head>
 </html>
