@@ -175,4 +175,22 @@ export default class extends CanvasService {
     await image.initialize()
     return image
   }
+
+  async loadFont(source: string | URL | Buffer | ArrayBufferLike): Promise<string> {
+    const id = `font_${++this.counter}`
+    let base64: string
+    if (source instanceof URL) {
+      source = source.href
+    }
+    if (typeof source === 'string') {
+      const file = await this.ctx.http.file(source)
+      base64 = Binary.toBase64(file.data)
+    } else if (Buffer.isBuffer(source)) {
+      base64 = source.toString('base64')
+    } else {
+      base64 = Binary.toBase64(source)
+    }
+    await this.page.evaluate(`loadFont(${JSON.stringify(id)}, ${JSON.stringify(base64)})`)
+    return id
+  }
 }
