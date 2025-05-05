@@ -20,21 +20,18 @@
 在使用远程浏览器时，关闭浏览器不会关闭远程浏览器进程。
 :::
 
-### puppeteer.page()
+### puppeteer.page(options?)
+- **options:**
+  - **beforeGotoPage:** `(page: Page) => Promise<void>` 页面跳转前的回调函数，负责执行一些[导航到页面之前要设置的操作](https://pptr.dev/search?q=before%20navigating%20to%20the)
+    - **page**: `Page` 页面实例
+  - **url:** `string` 页面地址
+  - **gotoOptions:** [`GotoOptions`](https://pptr.dev/api/puppeteer.gotooptions) 页面跳转选项
+  - **content:** `string` 要渲染的 HTML
+  - **families:** `string[]` 字体名
 
 - 返回值: `Promise<Page>`
 
 创建一个新页面。
-
-### puppeteer.pageWithFonts(families, url, content?, gotoOptions?, beforeGotoPage?)
-- **families:** `string[]` 字体列表
-- **url:** `string` 页面地址
-- **content:** `string` 要渲染的 HTML
-- **gotoOptions:** [`GotoOptions`](https://pptr.dev/api/puppeteer.gotooptions) 页面跳转选项
-- **beforeGotoPage:** `(page: Page) => Promise<void>` 页面跳转前的回调函数，负责执行一些[导航到页面之前要设置的操作](https://pptr.dev/search?q=before%20navigating%20to%20the)
-  - **page**: `Page` 页面实例
-- 返回值: `Promise<Page>`
-创建一个指定 URL 的新页面并加载字体。
 
 ### puppeteer.svg(options?)
 

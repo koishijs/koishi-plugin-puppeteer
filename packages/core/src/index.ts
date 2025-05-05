@@ -123,39 +123,48 @@ class Puppeteer extends Service {
     await this.browser?.close()
   }
 
-  page = () => this.browser.newPage()
+  page = async (options?: Puppeteer.PageOptions) => {
+    let page
 
-  pageWithFonts = async (
-    families: string[],
-    url: string,
-    content?: string,
-    gotoOptions?: GoToOptions,
-    beforeGotoPage?: (page: Page) => Promise<void>,
-  ) => {
-    const fonts = await this.ctx.fonts.get(families)
-    const page = await this.browser.newPage()
+    try {
+      page = await this.browser.newPage()
 
-    if (beforeGotoPage) {
-      await beforeGotoPage(page)
-    }
+      if (options) {
+        if (options?.beforeGotoPage) {
+          await options.beforeGotoPage(page)
+        }
 
-    await page.goto(`${pathToFileURL(url)}`, gotoOptions)
-    if (content) await page.setContent(content)
+        await page.goto(`${pathToFileURL(options.url)}`, options?.gotoOptions)
 
-    await Promise.all(fonts.map(async (font) => {
-      if (font.format === 'google') {
-        await page.addStyleTag({ content: `@import url('${font.path}')` })
-      } else {
-        await page.evaluate((font) => {
-          const fontFace = new FontFace(
-            font.family,
-            `url(${font.path}) format('${font.format}')`,
-            font.descriptors,
-          )
-          document.fonts.add(fontFace)
-        }, font)
+        if (options?.content) {
+          await page.setContent(options.content)
+        }
+
+        if (options?.families?.length) {
+          const fonts = await this.ctx.fonts.get(options.families)
+          await Promise.all(fonts.map(async (font) => {
+            if (font.format === 'google') {
+              await page.addStyleTag({ content: `@import url('${font.path}')` })
+            } else {
+              await page.evaluate((font) => {
+                const fontFace = new FontFace(
+                  font.family,
+                  `url(${font.path}) format('${font.format}')`,
+                  font.descriptors,
+                )
+                document.fonts.add(fontFace)
+              }, font)
+            }
+          }))
+        }
       }
-    }))
+    } catch (err) {
+      if (page) {
+        await page.close()
+      }
+      this.ctx.logger.error('failed to create page: %s', err)
+      throw err
+    }
 
     return page
   }
@@ -163,14 +172,9 @@ class Puppeteer extends Service {
   svg = (options?: SVGOptions) => new SVG(options)
 
   render = async (content: string, families?: string[], callback?: RenderCallback) => {
-    let page
     const url = resolve(__dirname, '../index.html')
-    if (!families?.length) {
-      page = await this.page()
-      await page.goto(pathToFileURL(url).href)
-      if (content) await page.setContent(content)
-    } else {
-      page = await this.pageWithFonts(families, url, content)
+    const page = await this.page({ url, content, families })
+    if (families?.length) {
       await page.addStyleTag({ content: `* {font-family: ${families.map((f) => `'${f}'`).join(', ')};}` })
       await page.evaluate(async () => {
         await document.fonts.ready
@@ -194,6 +198,14 @@ namespace Puppeteer {
   export const filter = false
 
   type LaunchOptions = Parameters<typeof puppeteer.launch>[0] & {}
+
+  export interface PageOptions {
+    beforeGotoPage?: (page: Page) => Promise<void>
+    url: string
+    gotoOptions?: GoToOptions
+    content?: string
+    families?: string[]
+  }
 
   export interface Config extends LaunchOptions {}
 
