@@ -107,7 +107,8 @@ export function apply(ctx: Context, config: Config) {
 
       return shooter.screenshot({
         fullPage: options.full,
-      }).then(async (buffer) => {
+      }).then(async (screenshot) => {
+        let buffer = Buffer.from(screenshot.buffer, screenshot.byteOffset, screenshot.byteLength)
         if (buffer.byteLength > maxSize) {
           await new Promise<PNG>((resolve, reject) => {
             const png = new PNG()
