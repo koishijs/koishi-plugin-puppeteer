@@ -4,6 +4,9 @@
   "version": "3.8.3",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "files": [
     "lib",
     "src",
@@ -58,7 +61,7 @@
   },
   "dependencies": {
     "@koishijs/canvas": "^0.2.0",
-    "puppeteer-core": "^22.5.0",
+    "puppeteer-core": "^25.2.0",
     "puppeteer-finder": "^1.1.0"
   }
 }
