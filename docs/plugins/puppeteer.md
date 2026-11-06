@@ -62,9 +62,11 @@
 - height: `number` 视图高度，默认为 600
 - deviceScaleFactor: `number` 设备缩放比率，默认为 2
 
-#### ignoreHTTPSErrors
+#### acceptInsecureCerts
 
 - 类型：`boolean`
 - 默认值：`false`
 
 在导航时忽略 HTTPS 错误。
+
+从旧版本升级时，请将配置中的 `ignoreHTTPSErrors` 改为 `acceptInsecureCerts`。

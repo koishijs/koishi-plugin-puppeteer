@@ -1,4 +1,4 @@
-import puppeteer, { Browser, ElementHandle, Page } from 'puppeteer-core'
+import puppeteer, { Browser, ElementHandle, LaunchOptions, Page } from 'puppeteer-core'
 import find from 'puppeteer-finder'
 import {} from '@cordisjs/plugin-proxy-agent'
 import { Context, h, hyphenate, Schema, Service } from 'koishi'
@@ -12,26 +12,6 @@ export * from './svg'
 declare module 'koishi' {
   interface Context {
     puppeteer: Puppeteer
-  }
-}
-
-declare module 'puppeteer-core/lib/types' {
-  interface Base64ScreenshotOptions extends ScreenshotOptions {
-    encoding: 'base64'
-  }
-
-  interface BinaryScreenshotOptions extends ScreenshotOptions {
-    encoding?: 'binary'
-  }
-
-  interface Page {
-    screenshot(options?: Base64ScreenshotOptions): Promise<string>
-    screenshot(options?: BinaryScreenshotOptions): Promise<Buffer>
-  }
-
-  interface ElementHandle {
-    screenshot(options?: Base64ScreenshotOptions): Promise<string>
-    screenshot(options?: BinaryScreenshotOptions): Promise<Buffer>
   }
 }
 
@@ -108,8 +88,8 @@ class Puppeteer extends Service {
         })
         const body = await page.$(attrs.selector || 'body')
         const clip = await body.boundingBox()
-        const screenshot = await page.screenshot({ clip }) as Buffer
-        return h.image(screenshot, 'image/png')
+        const screenshot = await page.screenshot({ clip })
+        return h.image(Buffer.from(screenshot.buffer, screenshot.byteOffset, screenshot.byteLength), 'image/png')
       } finally {
         await page?.close()
       }
@@ -133,7 +113,7 @@ class Puppeteer extends Service {
     const output = await callback(page, async (handle) => {
       const clip = handle ? await handle.boundingBox() : null
       const buffer = await page.screenshot({ clip })
-      return h.image(buffer, 'image/png').toString()
+      return h.image(Buffer.from(buffer.buffer, buffer.byteOffset, buffer.byteLength), 'image/png').toString()
     })
 
     page.close()
@@ -143,8 +123,6 @@ class Puppeteer extends Service {
 
 namespace Puppeteer {
   export const filter = false
-
-  type LaunchOptions = Parameters<typeof puppeteer.launch>[0] & {}
 
   export interface Config extends LaunchOptions {}
 
@@ -162,7 +140,7 @@ namespace Puppeteer {
         height: Schema.natural().description('默认的视图高度。').default(768),
         deviceScaleFactor: Schema.number().min(0).description('默认的设备缩放比率。').default(2),
       }),
-      ignoreHTTPSErrors: Schema.boolean().description('在导航时忽略 HTTPS 错误。').default(false),
+      acceptInsecureCerts: Schema.boolean().description('在导航时忽略 HTTPS 错误。').default(false),
     }).description('浏览器设置'),
   ]) as Schema<Config>
 }
