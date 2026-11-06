@@ -2,6 +2,7 @@ lib
 dist
 external
 
+yarn.lock
 node_modules
 npm-debug.log
 yarn-debug.log
@@ -17,3 +18,4 @@ tsconfig.tsbuildinfo
 *.ntvs*
 *.njsproj
 *.sln
+.yarn
